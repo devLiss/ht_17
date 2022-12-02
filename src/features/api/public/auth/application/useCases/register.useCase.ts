@@ -6,6 +6,7 @@ import { UsersService } from '../../../../super-admin/users/application/users.se
 import { UserRepository } from '../../../../../entities/mongo/user/infrastructure/user.repository';
 import { EmailService } from '../../../../../../emailManager/email.service';
 import { CreateUserDto } from '../../../../super-admin/users/dto/create-user.dto';
+import { UserSqlRepository } from '../../../../../entities/postgres/userSql.repository';
 
 export class RegisterCommand {
   constructor(public cuDto: CreateUserDto) {}
@@ -15,7 +16,8 @@ export class RegisterCommand {
 export class RegisterUseCase implements ICommandHandler<RegisterCommand> {
   constructor(
     private userService: UsersService,
-    private userRepo: UserRepository,
+    //private userRepo: UserRepository,
+    private userRepo: UserSqlRepository,
     private mailService: EmailService,
   ) {}
   async execute(command: RegisterCommand) {

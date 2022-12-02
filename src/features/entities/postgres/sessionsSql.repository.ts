@@ -5,8 +5,17 @@ export class SessionsSqlRepository {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async createSession(session: any) {
-    const query = `insert into sessions () values () `;
-    return this.dataSource.query(``, []);
+    const { ip, title, lastActiveDate, expiredDate, userId, deviceId } =
+      session;
+    const query = `insert into sessions ("userId", "ip", "title","lastActiveDate", "deviceId","expiredDate") values () `;
+    return this.dataSource.query(query, [
+      userId,
+      ip,
+      title,
+      lastActiveDate,
+      deviceId,
+      expiredDate,
+    ]);
   }
 
   async deleteAll() {
@@ -47,7 +56,7 @@ export class SessionsSqlRepository {
   }
   async getSessionByDeviceId(deviceId: string) {
     const query = `select * from sessions where deviceId = '$1'`;
-    return this.dataSource.query(query, [deviceId]);
+    return await this.dataSource.query(query, [deviceId])[0];
   }
   async getSessionByUserDeviceDate(
     userId: string,
@@ -55,6 +64,6 @@ export class SessionsSqlRepository {
     issuedAt: Date,
   ) {
     const query = `select * sessions where userId = $1 and deviceId = '$2' and lastActiveDate = $3`;
-    return this.dataSource.query(query, [userId, deviceId, issuedAt]);
+    return await this.dataSource.query(query, [userId, deviceId, issuedAt])[0];
   }
 }

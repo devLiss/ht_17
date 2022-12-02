@@ -26,9 +26,9 @@ export class UserSqlRepository {
 
     return {
       id: createdUser[0].id,
-      login: createdUser[0].login,
-      email: createdUser[0].email,
-      createdAt: createdUser[0].createdAt,
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
       banInfo: {
         isBanned: false,
         banDate: null,

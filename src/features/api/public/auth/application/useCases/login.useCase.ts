@@ -42,6 +42,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     };
     const createdSession = await this.sessionRepo.createSession(session);
 
+    console.log(createdSession);
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
