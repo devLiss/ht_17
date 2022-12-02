@@ -90,6 +90,7 @@ import { CreateUserUseCase } from './features/api/super-admin/users/application/
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSqlRepository } from './features/entities/postgres/userSql.repository';
 import { SessionsSqlRepository } from './features/entities/postgres/sessionsSql.repository';
+import { AppController } from './app.controller';
 
 mongoose.set('toJSON', {
   virtuals: true,
@@ -181,16 +182,16 @@ const controllers = [
     ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '192.168.3.3',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgresadmin',
-      database: 'incubator',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       synchronize: false,
     }),
     EmailModule,
   ],
-  controllers: [...controllers],
+  controllers: [AppController, ...controllers],
   providers: [
     AppService,
     ...repos,
