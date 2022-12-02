@@ -55,6 +55,7 @@ export class RefreshTokenUseCase
       new Date(newPayload.exp * 1000),
       new Date(newPayload.iat * 1000),
     );
+    console.log(tokens);
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,

@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '../../features/api/public/sessions/application/jwt.service';
 import { UserQueryRepository } from '../../features/entities/mongo/user/infrastructure/user-query.repository';
+import { UserSqlRepository } from '../../features/entities/postgres/userSql.repository';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
   constructor(
-    private userQueryRepo: UserQueryRepository,
+    private userQueryRepo: UserSqlRepository, //UserQueryRepository,
     private jwtService: JwtService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,11 +25,13 @@ export class BearerAuthGuard implements CanActivate {
 
     const userId = await this.jwtService.getUserByAccessToken(token);
     console.log('userId ' + userId);
+    console.log(userId);
     if (!userId) {
       throw new UnauthorizedException();
     }
 
-    const user = await this.userQueryRepo.findById(userId);
+    const user = await this.userQueryRepo.getUserById(userId);
+    console.log(user);
     if (!user) {
       throw new UnauthorizedException();
     }

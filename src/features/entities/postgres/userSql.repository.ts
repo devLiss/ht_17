@@ -52,12 +52,23 @@ export class UserSqlRepository {
   /*QUERY METHODS*/
 
   async getUserByLoginOrEmail(loginOrEmail: string) {
-    const query = `select * from users where login ilike '%$1%' or email ilike '%$1%'`;
-    return this.dataSource.query(query, [loginOrEmail]);
+    console.log('getUserByLoginOrEmail');
+    console.log(loginOrEmail);
+    const searchTerm = `'%${loginOrEmail}%'`;
+    const query = `select u.*, ab."isBanned" from users u left join "appBan" ab on u.id = ab."userId" where u.login ilike '%${loginOrEmail}%' or u.email ilike '%${loginOrEmail}%'`;
+    console.log(query);
+
+    const user = await this.dataSource.query(query);
+    console.log(user);
+    return user.length ? user[0] : null;
   }
 
   async getUserById(id: string) {
-    return this.dataSource.query(`select * from users where id = $1`, [+id]);
+    console.log('id', id);
+    const user = await this.dataSource.query(
+      `select * from users where id = '${id}'`,
+    );
+    return user.length ? user[0] : null;
   }
 
   async getUserByRecoveryCode(code: string) {

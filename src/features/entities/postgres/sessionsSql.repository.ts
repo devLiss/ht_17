@@ -7,7 +7,7 @@ export class SessionsSqlRepository {
   async createSession(session: any) {
     const { ip, title, lastActiveDate, expiredDate, userId, deviceId } =
       session;
-    const query = `insert into sessions ("userId", "ip", "title","lastActiveDate", "deviceId","expiredDate") values () `;
+    const query = `insert into sessions ("userId", "ip", "title","lastActiveDate", "deviceId","expiredDate") values ($1, $2, $3, $4, $5, $6) `;
     return this.dataSource.query(query, [
       userId,
       ip,
@@ -28,42 +28,48 @@ export class SessionsSqlRepository {
     expiredDate: Date,
     issuedAt: Date,
   ) {
-    const query = `update sessions  set ("expiredDate", "lastActiveDate") = ($1, $2) where userId = $3 and deviceId = '$4'`;
-    return this.dataSource.query(query, [
-      expiredDate,
-      issuedAt,
-      userId,
-      deviceId,
-    ]);
+    const query = `update sessions  set ("expiredDate", "lastActiveDate") = ($1, $2) where "userId" = '${userId}' and "deviceId" = '${deviceId}'`;
+    return this.dataSource.query(query, [expiredDate, issuedAt]);
   }
 
   async removeSessionByDeviceId(userId: string, deviceId: string) {
-    const query = `delete from sessions where userId = $1 deviceId = '$2'`;
-    return this.dataSource.query(query, [userId, deviceId]);
+    const query = `delete from sessions where "userId" = '${userId}' and "deviceId" = '${deviceId}'`;
+    console.log(query);
+    return this.dataSource.query(query /*[userId, deviceId]*/);
   }
   async removeSessionsWithoutCurrent(userId: string, deviceId: string) {
-    const query = `delete from sessions where userId = $1 and deviceId != '$2'`;
-    return this.dataSource.query(query, [+userId, deviceId]);
+    const query = `delete from sessions where "userId" = '${userId}' and "deviceId" != '${deviceId}'`;
+    return this.dataSource.query(query);
   }
   async removeAllSessionsByUserId(userId: string) {
-    const query = `delete from sessions where userId = $1`;
-    return this.dataSource.query(query, [+userId]);
+    const query = `delete from sessions where "userId" = '${userId}'`;
+    return this.dataSource.query(query);
   }
 
   async getSessionsByUserId(userId: string) {
-    const query = `select * from sessions where userId = $1`;
-    return this.dataSource.query(query, [+userId]);
+    const query = `select * from sessions where "userId" = '${userId}'`;
+    return this.dataSource.query(query);
   }
   async getSessionByDeviceId(deviceId: string) {
-    const query = `select * from sessions where deviceId = '$1'`;
-    return await this.dataSource.query(query, [deviceId])[0];
+    const query = `select * from sessions where "deviceId" = '${deviceId}'`;
+    const session = await this.dataSource.query(query, [deviceId]);
+    return session.length ? session[0] : null;
   }
   async getSessionByUserDeviceDate(
     userId: string,
     deviceId: string,
     issuedAt: Date,
   ) {
-    const query = `select * sessions where userId = $1 and deviceId = '$2' and lastActiveDate = $3`;
-    return await this.dataSource.query(query, [userId, deviceId, issuedAt])[0];
+    console.log(issuedAt);
+    const query = `select * from sessions where "userId" = '${userId}' and "deviceId" = '${deviceId}' and "lastActiveDate" = '${issuedAt.toISOString()}'`;
+    console.log(query);
+    const session = await this.dataSource.query(
+      query /*, [
+      userId,
+      deviceId,
+      issuedAt,
+    ]*/,
+    );
+    return session.length ? session[0] : null;
   }
 }

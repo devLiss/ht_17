@@ -10,12 +10,13 @@ describe('AuthController (e2e)', () => {
   afterAll(async () => {
     await app.close();
   });
+  const user = {
+    login: 'somelogin',
+    email: 'someEmail@blabla.com',
+    password: 'fdsfew',
+  };
+
   describe('Register user', () => {
-    const user = {
-      login: 'somelogin',
-      email: 'someEmail@blabla.com',
-      password: 'fdsfew',
-    };
     it('Should return an error if unaccepted login is provided, status 400 ', async () => {
       return request(app.getHttpServer())
         .post('/auth/registration')
@@ -47,6 +48,28 @@ describe('AuthController (e2e)', () => {
           password: '123456',
         })
         .expect(204);
+    });
+  });
+
+  describe('Login user', () => {
+    it('Should return 200, accessToken and login user with login', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          loginOrEmail: user.login,
+          password: user.password,
+        })
+        .expect(200);
+    });
+
+    it('Should return 200, accessToken and login user with email', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          loginOrEmail: user.email,
+          password: user.password,
+        })
+        .expect(200);
     });
   });
 });

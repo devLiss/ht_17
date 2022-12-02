@@ -37,7 +37,16 @@ export class SessionsController {
     const sessions = await this.sessionService.getSessionsByUserId(
       payload.userId,
     );
-    return sessions;
+
+    const sessionTemp = sessions.map((item) => {
+      return {
+        ip: item.ip,
+        title: item.title,
+        lastActiveDate: item.lastActiveDate,
+        deviceId: item.deviceId,
+      };
+    });
+    return sessionTemp;
   }
 
   @Delete()

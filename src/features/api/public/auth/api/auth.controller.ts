@@ -87,6 +87,7 @@ export class AuthController {
 
     return { accessToken: session.accessToken };
   }
+
   @Post('refresh-token')
   @HttpCode(200)
   async refresh(
