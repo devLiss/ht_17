@@ -1,6 +1,7 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserQueryDto } from '../../api/super-admin/users/dto/userQuery.dto';
+import { BanDto } from '../../api/super-admin/users/dto/ban.dto';
 
 export class UserSqlRepository {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
@@ -87,7 +88,27 @@ export class UserSqlRepository {
     const updateRecoveryQuery = `update "recoveryData" set "isConfirmed" = true where "userId" = $1`;
     await this.dataSource.query(updateRecoveryQuery, [userId]);
   }
-  async banUser() {}
+  async banUser(userId: string, banDto: BanDto) {
+    const user = await this.dataSource.query(
+      `select * from users where id = $1`,
+      [userId],
+    );
+    if (!user.length) return false;
+
+    let banDate = null;
+    let banReason = null;
+    let query = ``;
+    const isBanned = banDto.isBanned;
+    if (!banDto.isBanned) {
+      query = `delete from "appBan" where "userId" = $1`;
+    } else {
+      banReason = banDto.banReason;
+      banDate = new Date();
+      query = `insert into "appBan" set "userId" = $1 and "banDate" = $2 and "banReason" = $3, and "isBanned" = true`;
+    }
+
+    return this.dataSource.query(query, [userId, banDate, banReason]);
+  }
 
   /*QUERY METHODS*/
 
