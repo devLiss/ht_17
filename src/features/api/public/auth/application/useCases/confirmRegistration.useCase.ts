@@ -4,6 +4,7 @@ import { EmailService } from '../../../../../../emailManager/email.service';
 import { UsersService } from '../../../../super-admin/users/application/users.service';
 import { UserRepository } from '../../../../../entities/mongo/user/infrastructure/user.repository';
 import { CodeDto } from '../../dto/code.dto';
+import { UserSqlRepository } from '../../../../../entities/postgres/userSql.repository';
 
 export class ConfirmRegCommand {
   constructor(public cDto: CodeDto) {}
@@ -13,20 +14,23 @@ export class ConfirmRegistrationUseCase
   implements ICommandHandler<ConfirmRegCommand>
 {
   constructor(
-    private userQueryRepo: UserQueryRepository,
-    private userRepo: UserRepository,
+    /*private userQueryRepo: UserQueryRepository,
+    private userRepo: UserRepository,*/
+    private userRepo: UserSqlRepository,
   ) {}
   async execute(command: ConfirmRegCommand) {
-    const user = await this.userQueryRepo.getUserByCode(command.cDto.code);
+    const user = await this.userRepo.getUserByEmailConfirmationCode(
+      command.cDto.code,
+    );
     console.log(user);
     if (!user) {
       return false;
     }
-    if (user.emailConfirmation.isConfirmed) {
+    if (user.isConfirmed) {
       return false;
     }
-    console.log(user.id);
-    const result = await this.userRepo.updateConfirmation(user.id);
+    console.log(user.userId);
+    const result = await this.userRepo.acceptConfirmation(user.userId); //.updateConfirmationCode(user.userId);
     return true;
   }
 }

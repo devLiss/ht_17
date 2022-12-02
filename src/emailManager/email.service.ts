@@ -11,7 +11,7 @@ export class EmailService {
       subject: 'Регистрация',
       template: './email-confirmation',
       context: {
-        code: user.emailConfirmation.confirmationCode,
+        code: user.confirmationCode,
       },
     });
 
@@ -24,7 +24,7 @@ export class EmailService {
       subject: 'Восстановление пароля',
       template: './recovery-password',
       context: {
-        code: user.recoveryData.recoveryCode,
+        code: user.recoveryCode,
       },
     });
 

@@ -4,6 +4,7 @@ import { UserQueryRepository } from '../../../../../entities/mongo/user/infrastr
 import { UserRepository } from '../../../../../entities/mongo/user/infrastructure/user.repository';
 import { EmailService } from '../../../../../../emailManager/email.service';
 import { UsersService } from '../../../../super-admin/users/application/users.service';
+import { UserSqlRepository } from '../../../../../entities/postgres/userSql.repository';
 
 export class NewPasswordCommand {
   constructor(public npDto: NewPasswordDto) {}
@@ -11,19 +12,20 @@ export class NewPasswordCommand {
 @CommandHandler(NewPasswordCommand)
 export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
   constructor(
-    private userQueryRepo: UserQueryRepository,
-    private userRepo: UserRepository,
+    /*private userQueryRepo: UserQueryRepository,
+    private userRepo: UserRepository,*/
+    private userRepo: UserSqlRepository,
     private userService: UsersService,
   ) {}
 
   async execute(command: NewPasswordCommand): Promise<any> {
-    const user = await this.userQueryRepo.getUserByRecoveryCode(
+    const user = await this.userRepo.getUserByRecoveryCode(
       command.npDto.recoveryCode,
     );
     if (!user) {
       return false;
     }
-    if (user.recoveryData.isConfirmed) {
+    if (user.isConfirmed) {
       return false;
     }
 

@@ -4,6 +4,7 @@ import { UserQueryRepository } from '../../../../../entities/mongo/user/infrastr
 import { EmailService } from '../../../../../../emailManager/email.service';
 import { UsersService } from '../../../../super-admin/users/application/users.service';
 import { UserRepository } from '../../../../../entities/mongo/user/infrastructure/user.repository';
+import { UserSqlRepository } from '../../../../../entities/postgres/userSql.repository';
 
 export class ResendEmailCommand {
   constructor(public email: string) {}
@@ -12,13 +13,14 @@ export class ResendEmailCommand {
 @CommandHandler(ResendEmailCommand)
 export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
   constructor(
-    private userQueryRepo: UserQueryRepository,
     protected mailService: EmailService,
     private userService: UsersService,
-    private userRepo: UserRepository,
+    /*private userRepo: UserRepository, 
+    private userQueryRepo: UserQueryRepository,*/
+    private userRepo: UserSqlRepository,
   ) {}
   async execute(command: ResendEmailCommand): Promise<any> {
-    let user = await this.userQueryRepo.getByEmail(command.email);
+    let user = await this.userRepo.getUserByEmail(command.email);
     console.log('RESEND ');
     if (!user) {
       return false;
@@ -31,7 +33,7 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
       user.id,
       confirmCode,
     );
-    user = await this.userQueryRepo.getByEmail(command.email);
+    user = await this.userRepo.getUserByEmail(command.email);
     const result = await this.mailService.sendConfirmation(user);
     return true;
   }

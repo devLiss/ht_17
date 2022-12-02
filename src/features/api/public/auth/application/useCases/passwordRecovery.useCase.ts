@@ -4,6 +4,7 @@ import { add } from 'date-fns';
 import { UserQueryRepository } from '../../../../../entities/mongo/user/infrastructure/user-query.repository';
 import { UserRepository } from '../../../../../entities/mongo/user/infrastructure/user.repository';
 import { EmailService } from '../../../../../../emailManager/email.service';
+import { UserSqlRepository } from '../../../../../entities/postgres/userSql.repository';
 
 export class PasswordRecoveryCommand {
   constructor(public email: string) {}
@@ -14,13 +15,14 @@ export class PasswordRecoveryUseCase
   implements ICommandHandler<PasswordRecoveryCommand>
 {
   constructor(
-    private userQueryRepo: UserQueryRepository,
-    private userRepo: UserRepository,
+    /*private userQueryRepo: UserQueryRepository,
+    private userRepo: UserRepository,*/
+    private userRepo: UserSqlRepository,
     private mailService: EmailService,
   ) {}
 
   async execute(command: PasswordRecoveryCommand): Promise<any> {
-    const user = await this.userQueryRepo.getByEmail(command.email);
+    const user = await this.userRepo.getUserByEmail(command.email);
     console.log(command.email);
     console.log(user);
     console.log('Recovery Code');

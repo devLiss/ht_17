@@ -43,10 +43,50 @@ export class UserSqlRepository {
   async deleteAll() {
     return this.dataSource.query(`delete from users`);
   }
-  async acceptConfirmation() {}
-  async updateConfirmationCode() {}
-  async createRecoveryData() {}
-  async confirmPassword() {}
+  async acceptConfirmation(id: string) {
+    const query = `update "emailConfirmation" set "isConfirmed" = true where "userId" = $1`;
+    return this.dataSource.query(query, [id]);
+  }
+  async updateConfirmationCode(userId: string, code: string) {
+    const query = `update "emailConfirmation" set "confirmationCode" = $1 where "userId" = $2 returning *`;
+    const confirmationCode = await this.dataSource.query(query, [code, userId]);
+    return confirmationCode[0];
+  }
+  async createRecoveryData(
+    userId: string,
+    recoveryData: {
+      recoveryCode: string;
+      expirationDate: Date;
+      isConfirmed: boolean;
+    },
+  ) {
+    const query = `update "recoveryData" set "recoveryCode" = $1 and "expirationDate" = $2 and "isConfirmed" = $3 where "userId" = $4`;
+    await this.dataSource.query(query, [
+      recoveryData.recoveryCode,
+      recoveryData.expirationDate,
+      recoveryData.isConfirmed,
+      userId,
+    ]);
+
+    const data = await this.dataSource.query(
+      `select * from "recoveryData" where "userId" = $1`,
+      [userId],
+    );
+    return data.length ? data[0] : null;
+  }
+  async confirmPassword(
+    userId: string,
+    passwordData: { passwordSalt: string; passwordHash: string },
+  ) {
+    const updateUserQuery = `update users set "passwordHash" = $1 and "passwordSalt" = $2 where "userId" = $3`;
+    await this.dataSource.query(updateUserQuery, [
+      passwordData.passwordHash,
+      passwordData.passwordSalt,
+      userId,
+    ]);
+    const updateRecoveryQuery = `update "recoveryData" set "isConfirmed" = true where "userId" = $1`;
+    await this.dataSource.query(updateRecoveryQuery, [userId]);
+  }
   async banUser() {}
 
   /*QUERY METHODS*/
@@ -63,6 +103,11 @@ export class UserSqlRepository {
     return user.length ? user[0] : null;
   }
 
+  async getUserByEmail(email: string) {
+    const query = `select * from users where email = $1`;
+    const user = await this.dataSource.query(query, [email]);
+    return user.length ? user[0] : null;
+  }
   async getUserById(id: string) {
     console.log('id', id);
     const user = await this.dataSource.query(
@@ -72,13 +117,15 @@ export class UserSqlRepository {
   }
 
   async getUserByRecoveryCode(code: string) {
-    const query = `select * from "recoveryData" where "recoveryCode" = '$1'`;
-    return this.dataSource.query(query, [code]);
+    const query = `select * from "recoveryData" where "recoveryCode" = $1`;
+    const recoveryData = await this.dataSource.query(query, [code]);
+    return recoveryData.length ? recoveryData[0] : null;
   }
 
   async getUserByEmailConfirmationCode(code: string) {
-    const query = `select * from "emailConfirmation" where "confirmationCode" = '$1'`;
-    return this.dataSource.query(`query`, [code]);
+    const query = `select * from "emailConfirmation" where "confirmationCode" = $1`;
+    const emailConfirmData = await this.dataSource.query(query, [code]);
+    return emailConfirmData.length ? emailConfirmData[0] : null;
   }
 
   async getAllUsers(userQuery: UserQueryDto) {
