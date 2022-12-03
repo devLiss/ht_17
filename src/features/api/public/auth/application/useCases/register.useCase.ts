@@ -7,6 +7,7 @@ import { UserRepository } from '../../../../../entities/mongo/user/infrastructur
 import { EmailService } from '../../../../../../emailManager/email.service';
 import { CreateUserDto } from '../../../../super-admin/users/dto/create-user.dto';
 import { UserSqlRepository } from '../../../../../entities/postgres/userSql.repository';
+import { BadRequestException } from '@nestjs/common';
 
 export class RegisterCommand {
   constructor(public cuDto: CreateUserDto) {}
@@ -26,12 +27,24 @@ export class RegisterUseCase implements ICommandHandler<RegisterCommand> {
     let existedUser = await this.userRepo.getUserByLoginOrEmail(
       command.cuDto.login,
     );
-    if (existedUser) return null;
+    if (existedUser)
+      throw new BadRequestException([
+        {
+          message: 'User is already exists',
+          field: 'login',
+        },
+      ]);
 
     existedUser = await this.userRepo.getUserByLoginOrEmail(
       command.cuDto.email,
     );
-    if (existedUser) return null;
+    if (existedUser)
+      throw new BadRequestException([
+        {
+          message: 'Email is already exists',
+          field: 'email',
+        },
+      ]);
 
     const passwordSalt = await bcrypt.genSalt(12);
     const passwordHash = await this.userService._generateHash(
