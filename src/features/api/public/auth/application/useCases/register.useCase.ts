@@ -23,8 +23,13 @@ export class RegisterUseCase implements ICommandHandler<RegisterCommand> {
   async execute(command: RegisterCommand) {
     console.log('create user');
 
-    const existedUser = await this.userRepo.getUserByLoginOrEmail(
+    let existedUser = await this.userRepo.getUserByLoginOrEmail(
       command.cuDto.login,
+    );
+    if (existedUser) return null;
+
+    existedUser = await this.userRepo.getUserByLoginOrEmail(
+      command.cuDto.email,
     );
     if (existedUser) return null;
 

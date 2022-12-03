@@ -121,7 +121,7 @@ export class UserSqlRepository {
     console.log('getUserByLoginOrEmail');
     console.log(loginOrEmail);
     const searchTerm = `'%${loginOrEmail}%'`;
-    const query = `select u.*, ab."isBanned" from users u left join "appBan" ab on u.id = ab."userId" where u.login ilike '%${loginOrEmail}%' or u.email ilike '%${loginOrEmail}%'`;
+    const query = `select u.*, ab."isBanned" from users u left join "appBan" ab on u.id = ab."userId" where u.login = '${loginOrEmail}' or u.email = '${loginOrEmail}'`;
     console.log(query);
 
     const user = await this.dataSource.query(query);
