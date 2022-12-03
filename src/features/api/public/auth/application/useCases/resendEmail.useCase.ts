@@ -33,6 +33,8 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
       user.id,
       confirmCode,
     );
+
+    console.log(updateRes);
     //user = await this.userRepo.getUserByEmail(command.email);
     const result = await this.mailService.sendConfirmation(
       command.email,
