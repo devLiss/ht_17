@@ -20,7 +20,6 @@ import { BasicAuthGuard } from '../../../../../common/guards/basicAuth.guard';
 import { BanDto } from '../dto/ban.dto';
 import { Request } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
-import { RegisterCommand } from '../../../public/auth/application/useCases/register.useCase';
 import { BanUserCommand } from '../application/useCases/banUser.useCase';
 import { DeleteUserCommand } from '../application/useCases/deleteUser.useCase';
 import { CheckUserGuard } from '../../../../../common/guards/checkUser.guard';
@@ -41,6 +40,7 @@ export class UsersController {
   async getAllUsers(@Query() uqDto: UserQueryDto) {
     //const users = await this.userQueryRepo.getUsers(uqDto);
     const users = await this.userSqlRepo.getAllUsers(uqDto);
+    console.log(users);
     return users;
   }
 

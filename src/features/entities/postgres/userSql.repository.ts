@@ -39,7 +39,7 @@ export class UserSqlRepository {
   }
   async deleteUser(id: string) {
     const query = `delete from users where id = $1`;
-    return this.dataSource.query(query, [+id]);
+    return this.dataSource.query(query, [id]);
   }
   async deleteAll() {
     await this.dataSource.query(`delete from "appBan"`);
@@ -170,33 +170,38 @@ export class UserSqlRepository {
     const query = `select u.id, u.login, u.email, u."createdAt", ab."isBanned" , ab."banDate" , ab."banReason"  
     from users u left join "appBan" ab on u.id = ab."userId" 
     where u.login ilike '%${userQuery.searchLoginTerm}%' and  u.email ilike '%${userQuery.searchEmailTerm}%' ${subquery} 
-    order by $1 limit $2 offset $3`;
+    order by "${userQuery.sortBy}" ${userQuery.sortDirection} limit $1 offset $2`;
 
     const users = await this.dataSource.query(query, [
-      orderBySubquery,
       userQuery.pageSize,
       offset,
     ]);
-    console.log(query);
+    //console.log(query);
 
     const totalQuery = `select count(*) from users u left join "appBan" ab on u.id = ab."userId" ${subquery}`;
     const totalCount = await this.dataSource.query(totalQuery);
 
     console.log(users);
+
     const temp = users.map((item) => {
-      return {
+      const t = {
         id: item.id,
         login: item.login,
         email: item.email,
+        createdAt: item.createdAt,
         banInfo: {
-          isBanned: item.isBanned ? true : false,
+          isBanned: !!item.isBanned,
           banDate: item.banDate,
           banReason: item.banReason,
         },
       };
+      console.log(t);
+      return t;
     });
+
+    console.log(temp);
     return {
-      pagesCount: Math.ceil(totalCount[0].count / userQuery.pageNumber),
+      pagesCount: Math.ceil(+totalCount[0].count / userQuery.pageNumber),
       page: userQuery.pageNumber,
       pageSize: userQuery.pageSize,
       totalCount: +totalCount[0].count,
