@@ -19,6 +19,7 @@ export class ConfirmRegistrationUseCase
     private userRepo: UserSqlRepository,
   ) {}
   async execute(command: ConfirmRegCommand) {
+    console.log(command.cDto.code);
     const user = await this.userRepo.getUserByEmailConfirmationCode(
       command.cDto.code,
     );
