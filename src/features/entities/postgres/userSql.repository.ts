@@ -42,8 +42,8 @@ export class UserSqlRepository {
     return this.dataSource.query(query, [+id]);
   }
   async deleteAll() {
-    await this.dataSource.query(`delete * from "emailConfirmation"`);
-    await this.dataSource.query(`delete * from "recoveryData"`);
+    await this.dataSource.query(`delete from "emailConfirmation"`);
+    await this.dataSource.query(`delete  from "recoveryData"`);
     return this.dataSource.query(`delete from users`);
   }
   async acceptConfirmation(id: string) {
