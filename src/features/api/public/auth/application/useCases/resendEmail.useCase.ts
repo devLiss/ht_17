@@ -20,8 +20,9 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
     private userRepo: UserSqlRepository,
   ) {}
   async execute(command: ResendEmailCommand): Promise<any> {
-    const user = await this.userRepo.getConfirmInfoByUserId(command.email);
+    const user = await this.userRepo.getConfirmInfoByUserEmail(command.email);
     console.log('RESEND ');
+    console.log(user);
     if (!user) {
       return false;
     }
