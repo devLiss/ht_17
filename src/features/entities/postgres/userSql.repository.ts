@@ -156,7 +156,7 @@ export class UserSqlRepository {
   }
 
   async getUserByEmailConfirmationCode(code: string) {
-    const query = `select * from "emailConfirmation" where "confirmationCode" = ${code}`;
+    const query = `select * from "emailConfirmation" where "confirmationCode" = '${code}'`;
     const emailConfirmData = await this.dataSource.query(query);
     console.log(query);
     console.log(emailConfirmData);
