@@ -79,6 +79,7 @@ export class RegisterUseCase implements ICommandHandler<RegisterCommand> {
     } catch (e) {
       console.log(e);
     }
+    console.log(createResult);
     return {
       id: createResult.id,
       login: createResult.login,
