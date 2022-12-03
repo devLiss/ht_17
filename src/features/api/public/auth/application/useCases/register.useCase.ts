@@ -48,7 +48,7 @@ export class RegisterUseCase implements ICommandHandler<RegisterCommand> {
 
     const createResult = await this.userRepo.createUser(newUser);
     try {
-      this.mailService.sendConfirmation(newUser);
+      await this.mailService.sendConfirmation(newUser);
     } catch (e) {
       console.log(e);
     }
