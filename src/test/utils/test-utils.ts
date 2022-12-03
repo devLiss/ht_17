@@ -38,9 +38,9 @@ export const getAppAndCleanDB = async () => {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
-  await app.init();
+  return app;
 
-  const dataSource = await app.resolve(DataSource);
+  // const dataSource = await app.resolve(DataSource);
   /*await dataSource.query(`
     CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
 DECLARE
@@ -55,5 +55,5 @@ END;
 $$ LANGUAGE plpgsql;
 SELECT truncate_tables('postgres');
     `);*/
-  return app;
+  // return app;
 };

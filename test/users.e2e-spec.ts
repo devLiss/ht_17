@@ -1,11 +1,13 @@
 import request from 'supertest';
-import { getAppAndCleanDB } from './utils/test-utils';
+import { getAppAndCleanDB } from '../src/test/utils/test-utils';
 import { INestApplication } from '@nestjs/common';
 
 describe('Users', () => {
   let app: INestApplication;
   beforeAll(async () => {
     app = await getAppAndCleanDB();
+    await app.init();
+    console.log('app start');
   });
 
   describe('createUser by Sa', () => {
