@@ -106,7 +106,7 @@ export class UserSqlRepository {
     } else {
       banReason = banDto.banReason;
       banDate = new Date();
-      query = `insert into "appBan" set "userId" = $1 and "banDate" = $2 and "banReason" = $3, and "isBanned" = true`;
+      query = `insert into "appBan" ("userId", "banDate", "banReason", "isBanned") values($1, $2, $3, true)`;
     }
 
     return this.dataSource.query(query, [userId, banDate, banReason]);
