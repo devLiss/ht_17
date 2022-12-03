@@ -168,7 +168,7 @@ export class UserSqlRepository {
 
     const query = `select u.id, u.login, u.email, u."createdAt", ab."isBanned" , ab."banDate" , ab."banReason"  
     from users u left join "appBan" ab on u.id = ab."userId" 
-    where u.login ilike '%'${userQuery.searchLoginTerm}'%' and  u.email ilike '%${userQuery.searchEmailTerm}%' ${subquery} 
+    where u.login ilike '%${userQuery.searchLoginTerm}%' and  u.email ilike '%${userQuery.searchEmailTerm}%' ${subquery} 
     order by $1 limit $2 offset $3`;
 
     const users = await this.dataSource.query(query, [
