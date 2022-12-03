@@ -11,7 +11,7 @@ export class EmailService {
       subject: 'Регистрация',
       template: './email-confirmation',
       context: {
-        code: user.confirmationCode,
+        code: user.emailConfirmation.confirmationCode,
       },
     });
 
