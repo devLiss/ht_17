@@ -52,7 +52,7 @@ export class UserSqlRepository {
     return this.dataSource.query(query, [id]);
   }
   async updateConfirmationCode(userId: string, code: string) {
-    const query = `update "emailConfirmation" set "confirmationCode" = '${code}' where "userId" = '${userId}' returning *`;
+    const query = `update "emailConfirmation" set "confirmationCode" = '${code}' where "userId" = '${userId}'`;
     const confirmationCode = await this.dataSource.query(query);
     return confirmationCode.length ? confirmationCode[0] : null;
   }
