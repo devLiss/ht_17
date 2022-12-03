@@ -134,6 +134,13 @@ export class UserSqlRepository {
     const user = await this.dataSource.query(query, [email]);
     return user.length ? user[0] : null;
   }
+
+  async getConfirmInfoByUserId(email: string) {
+    const query = `select * from users u join "emailConfirmation" ec on u.id = ec."userId" where u.email = $1`;
+    const user = await this.dataSource.query(query, [email]);
+    return user.length ? user[0] : null;
+  }
+
   async getUserById(id: string) {
     console.log('id', id);
     const user = await this.dataSource.query(
