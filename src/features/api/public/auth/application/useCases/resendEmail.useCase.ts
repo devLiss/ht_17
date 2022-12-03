@@ -31,7 +31,7 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
     }
     const confirmCode = uuidv4();
     const updateRes = await this.userRepo.updateConfirmationCode(
-      user.id,
+      user.userId,
       confirmCode,
     );
 
