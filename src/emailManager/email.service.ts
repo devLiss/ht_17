@@ -6,6 +6,7 @@ export class EmailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendConfirmation(user: any) {
+    console.log(user);
     const result = await this.mailerService.sendMail({
       to: user.email,
       subject: 'Регистрация',
