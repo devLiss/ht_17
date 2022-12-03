@@ -163,6 +163,10 @@ export class UserSqlRepository {
     return emailConfirmData.length ? emailConfirmData[0] : null;
   }
 
+  async getEmailConfirmation() {
+    return this.dataSource.query(`select * from "emailConfirmation"`);
+  }
+
   async getAllUsers(userQuery: UserQueryDto) {
     let subquery = ``;
     switch (userQuery.banStatus) {
