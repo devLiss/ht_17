@@ -201,7 +201,7 @@ export class UserSqlRepository {
 
     console.log(temp);
     return {
-      pagesCount: Math.ceil(+totalCount[0].count / userQuery.pageNumber),
+      pagesCount: Math.ceil(+totalCount[0].count / userQuery.pageSize),
       page: userQuery.pageNumber,
       pageSize: userQuery.pageSize,
       totalCount: +totalCount[0].count,
