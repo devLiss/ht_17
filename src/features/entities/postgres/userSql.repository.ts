@@ -54,7 +54,7 @@ export class UserSqlRepository {
   async updateConfirmationCode(userId: string, code: string) {
     const query = `update "emailConfirmation" set "confirmationCode" = $1 where "userId" = $2 returning *`;
     const confirmationCode = await this.dataSource.query(query, [code, userId]);
-    return confirmationCode[0];
+    return confirmationCode.length ? confirmationCode[0] : null;
   }
   async createRecoveryData(
     userId: string,
