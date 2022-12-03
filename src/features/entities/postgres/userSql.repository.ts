@@ -104,13 +104,15 @@ export class UserSqlRepository {
     const isBanned = banDto.isBanned;
     if (!banDto.isBanned) {
       query = `delete from "appBan" where "userId" = $1`;
+      await this.dataSource.query(query, [userId]);
     } else {
       banReason = banDto.banReason;
       banDate = new Date();
       query = `insert into "appBan" ("userId", "banDate", "banReason", "isBanned") values($1, $2, $3, true)`;
+      await this.dataSource.query(query, [userId, banDate, banReason]);
     }
 
-    return this.dataSource.query(query, [userId, banDate, banReason]);
+    return true;
   }
 
   /*QUERY METHODS*/
