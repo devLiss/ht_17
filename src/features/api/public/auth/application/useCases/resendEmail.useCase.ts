@@ -20,7 +20,7 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
     private userRepo: UserSqlRepository,
   ) {}
   async execute(command: ResendEmailCommand): Promise<any> {
-    let user = await this.userRepo.getConfirmInfoByUserId(command.email);
+    const user = await this.userRepo.getConfirmInfoByUserId(command.email);
     console.log('RESEND ');
     if (!user) {
       return false;
@@ -34,8 +34,10 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
       confirmCode,
     );
     //user = await this.userRepo.getUserByEmail(command.email);
-    user = await this.userRepo.getConfirmInfoByUserId(command.email);
-    const result = await this.mailService.sendConfirmation(user);
+    const result = await this.mailService.sendConfirmation(
+      command.email,
+      confirmCode,
+    );
     return true;
   }
 }
