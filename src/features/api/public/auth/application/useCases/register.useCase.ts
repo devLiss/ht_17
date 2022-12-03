@@ -22,6 +22,12 @@ export class RegisterUseCase implements ICommandHandler<RegisterCommand> {
   ) {}
   async execute(command: RegisterCommand) {
     console.log('create user');
+
+    const existedUser = await this.userRepo.getUserByLoginOrEmail(
+      command.cuDto.login,
+    );
+    if (existedUser) return null;
+
     const passwordSalt = await bcrypt.genSalt(12);
     const passwordHash = await this.userService._generateHash(
       command.cuDto.password,

@@ -135,7 +135,12 @@ export class AuthController {
     );
 
     if (!createdUser) {
-      throw new BadRequestException();
+      throw new BadRequestException([
+        {
+          message: 'Email is already exists',
+          field: 'email',
+        },
+      ]);
     }
   }
 
