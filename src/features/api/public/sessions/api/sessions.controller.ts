@@ -75,7 +75,7 @@ export class SessionsController {
     const isDeleted = await this.commandBus.execute(
       new TerminateByIdCommand(refreshToken, id),
     );
-    if (!isDeleted) throw new NotFoundException();
+    //if (!isDeleted) throw new NotFoundException();
     return true;
   }
 }
