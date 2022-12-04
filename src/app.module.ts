@@ -168,7 +168,7 @@ const controllers = [
     }),
     ThrottlerModule.forRoot({
       ttl: 10,
-      limit: 5,
+      limit: 6,
     }),
     MongooseModule.forRoot(process.env.mongoURI),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
