@@ -39,7 +39,7 @@ import { GetInfo } from '../application/useCases/getInfoByMe.useCase';
 export class AuthController {
   constructor(private commandBus: CommandBus, private jwtService: JwtService) {}
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('password-recovery')
   @HttpCode(204)
   async passwordRecovery(@Body('email') email: string) {
@@ -48,7 +48,7 @@ export class AuthController {
     return true;
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('new-password')
   @HttpCode(204)
   async changePassword(@Body() npDto: NewPasswordDto) {
@@ -60,7 +60,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
@@ -112,7 +112,7 @@ export class AuthController {
     };
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   async confirmRegistration(@Body() cDto: CodeDto) {
@@ -126,7 +126,7 @@ export class AuthController {
     return result;
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() newUser: CreateUserDto) {
@@ -144,7 +144,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
   async resendEmailConfirmation(@Body('email') email: string) {
