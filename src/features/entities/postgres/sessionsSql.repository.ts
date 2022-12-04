@@ -52,7 +52,7 @@ export class SessionsSqlRepository {
   }
   async getSessionByDeviceId(deviceId: string) {
     const query = `select * from sessions where "deviceId" = '${deviceId}'`;
-    const session = await this.dataSource.query(query, [deviceId]);
+    const session = await this.dataSource.query(query);
     return session.length ? session[0] : null;
   }
   async getSessionByUserDeviceDate(
