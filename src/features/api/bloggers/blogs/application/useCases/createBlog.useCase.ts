@@ -3,6 +3,7 @@ import { BlogsRepo } from '../../../../../entities/mongo/blogs/infrastructure/bl
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogDocument } from '../../../../../entities/mongo/blogs/entities/blogs.schema';
+import { BlogsSqlRepository } from '../../../../../entities/postgres/blogsSql.repository';
 
 export class CreateBlogCommand {
   constructor(public inputModel: BlogInputModelDto, public user: any) {}
@@ -10,7 +11,10 @@ export class CreateBlogCommand {
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
-  constructor(private blogsRepo: BlogsRepo) {}
+  constructor(
+    private blogsRepo: BlogsRepo,
+    private blogSqlRepo: BlogsSqlRepository,
+  ) {}
   async execute(command: CreateBlogCommand) {
     const blog = {
       name: command.inputModel.name,
@@ -24,14 +28,8 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
       },
     };
 
-    const createdBlog = await this.blogsRepo.createBlog(blog);
+    const createdBlog = await this.blogSqlRepo.create(blog);
 
-    return {
-      id: createdBlog._id,
-      name: createdBlog.name,
-      description: createdBlog.description,
-      websiteUrl: createdBlog.websiteUrl,
-      createdAt: createdBlog.createdAt,
-    };
+    return createdBlog;
   }
 }

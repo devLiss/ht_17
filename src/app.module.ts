@@ -91,6 +91,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSqlRepository } from './features/entities/postgres/userSql.repository';
 import { SessionsSqlRepository } from './features/entities/postgres/sessionsSql.repository';
 import { AppController } from './app.controller';
+import { BlogsSqlRepository } from './features/entities/postgres/blogsSql.repository';
 
 mongoose.set('toJSON', {
   virtuals: true,
@@ -139,7 +140,7 @@ const repos = [
   SessionRepository,
   BannedUsersQueryRepo,
 ];
-const sqlRepos = [UserSqlRepository, SessionsSqlRepository];
+const sqlRepos = [UserSqlRepository, SessionsSqlRepository, BlogsSqlRepository];
 const services = [
   JwtService,
   UsersService,
