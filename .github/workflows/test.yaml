@@ -6,20 +6,20 @@ on:
       - 'staging'
 
 jobs:
-  #Tests:
-  #  name: Tests # название конктретной работы в pipeline
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - name: Checkout  # клонируем репозиторый
-  #      uses: actions/checkout@v2
+  Tests:
+    name: Tests # название конктретной работы в pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout  # клонируем репозиторый
+        uses: actions/checkout@v2
 
-  #    - name: Install dependencies
-  #      run: yarn # устанавливаем зависимости
+      - name: Install dependencies
+        run: yarn # устанавливаем зависимости
 
-  #    - name: Test
-  #      run: yarn test:e2e # запускаем скрипт тестами
-  #      env:
-  #        MONGO_URI: ${{ secrets.MONGO_URI }}
+      - name: Test
+        run: yarn test:e2e # запускаем скрипт тестами
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
   Sync-main-branch:
     name: Sync-main-branch
     runs-on: ubuntu-latest
