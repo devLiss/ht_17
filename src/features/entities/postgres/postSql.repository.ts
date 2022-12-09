@@ -31,4 +31,10 @@ export class PostSqlRepository {
   async deleteAll() {
     return this.dataSource.query(`delete from posts`);
   }
+
+  async getPostById(id: string) {
+    const query = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${id}'`;
+    const post = await this.dataSource.query(query);
+    return post.length ? post[0] : null;
+  }
 }
