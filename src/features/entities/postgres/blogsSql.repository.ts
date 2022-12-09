@@ -25,7 +25,10 @@ export class BlogsSqlRepository {
     const query = `delete from blogs where id = $1`;
     return this.dataSource.query(query, [id]);
   }
-  async deleteAll() {}
+  async deleteAll() {
+    const query = `delete from blogs`;
+    return this.dataSource.query(query);
+  }
 
   async getAll() {
     const query = `select * from blogs`;
