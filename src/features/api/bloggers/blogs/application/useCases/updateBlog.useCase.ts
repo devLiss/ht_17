@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsRepo } from '../../../../../entities/mongo/blogs/infrastructure/blog.repository';
 import { BlogInputModelDto } from '../../dto/blogInputModel.dto';
+import { BlogsSqlRepository } from '../../../../../entities/postgres/blogsSql.repository';
 
 export class UpdateBlogCommand {
   constructor(public id: string, public blog: BlogInputModelDto) {}
@@ -8,9 +8,9 @@ export class UpdateBlogCommand {
 
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
-  constructor(protected blogsRepo: BlogsRepo) {}
+  constructor(protected blogsRepo: BlogsSqlRepository) {}
   async execute(command: UpdateBlogCommand) {
-    const blog = await this.blogsRepo.updateBlog(
+    const blog = await this.blogsRepo.update(
       command.id,
       command.blog.name,
       command.blog.description,
