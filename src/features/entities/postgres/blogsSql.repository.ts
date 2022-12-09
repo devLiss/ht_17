@@ -28,6 +28,7 @@ export class BlogsSqlRepository {
     websiteUrl: string,
   ) {
     const query = `update blogs set name = $1, description = $2, "websiteUrl" = $3 where id = ${id}`;
+    await this.dataSource.query(query, [name, description, websiteUrl]);
     return true;
   }
   async deleteOne(id: string) {
@@ -95,7 +96,6 @@ export class BlogsSqlRepository {
       items: blogs,
     };
   }
-
   async getById(id: string) {
     const query = `select * from blogs where id=$1`;
     const blog = await this.dataSource.query(query, [id]);
