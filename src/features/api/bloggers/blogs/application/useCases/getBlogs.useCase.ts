@@ -1,6 +1,5 @@
 import { BlogQueryDto } from '../../../../public/blogs/dto/blogQuery.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogQueryRepository } from '../../../../../entities/mongo/blogs/infrastructure/blog-query.repository';
 import { BlogsSqlRepository } from '../../../../../entities/postgres/blogsSql.repository';
 
 export class GetBlogsCommand {
