@@ -19,11 +19,12 @@ import { BlogsSqlRepository } from '../../../entities/postgres/blogsSql.reposito
 @Controller('blogs')
 export class PublicBlogsController {
   constructor(
-    protected blogQueryRepo: BlogQueryRepository,
+    //protected blogQueryRepo: BlogQueryRepository,
     private postCUService: PostsService,
     private postsQueryRepo: PostsQueryRepository,
     private jwtService: JwtService,
     private userQueryRepo: UserQueryRepository,
+    //private blogRepo: BlogsSqlRepository,
     private blogRepo: BlogsSqlRepository,
   ) {}
 
@@ -63,7 +64,7 @@ export class PublicBlogsController {
 
   @Get('/:id')
   async getBlogById(@Param('id') id: string) {
-    const blog = await this.blogQueryRepo.findBlogById(id);
+    const blog = await this.blogRepo.getById(id);
     console.log(blog);
     if (!blog) throw new NotFoundException();
     return {
