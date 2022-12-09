@@ -82,10 +82,10 @@ export class BlogsSqlRepository {
   async getAllByUser(bqDto: BlogQueryDto, userId: string) {
     const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
 
-    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where name ilike '%${bqDto.searchNameTerm}%' and ownerId = '${userId}'  order by "${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
+    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where name ilike '%${bqDto.searchNameTerm}%' and "ownerId" = '${userId}'  order by "${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
     const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
 
-    const totalQuery = `select count(*) from blogs where name ilike '%${bqDto.searchNameTerm}%' and ownerId = '${userId}'`;
+    const totalQuery = `select count(*) from blogs where name ilike '%${bqDto.searchNameTerm}%' and "ownerId" = '${userId}'`;
     const totalCount = await this.dataSource.query(totalQuery);
 
     return {
