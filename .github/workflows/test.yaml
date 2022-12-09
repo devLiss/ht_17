@@ -32,5 +32,5 @@ jobs:
         with:
           type: now
           from_branch: staging
-          target_branch: master
+          target_branch: main
           github_token: ${{ github.token }}
