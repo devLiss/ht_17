@@ -1,6 +1,7 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PostInputModelDto } from '../../api/bloggers/blogs/dto/postInputModel.dto';
+import { BlogQueryDto } from '../../api/public/blogs/dto/blogQuery.dto';
 
 export class PostSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -36,5 +37,36 @@ export class PostSqlRepository {
     const query = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${id}'`;
     const post = await this.dataSource.query(query);
     return post.length ? post[0] : null;
+  }
+
+  async getPostsByBlogId(
+    blogId: string,
+    bqDto: BlogQueryDto,
+    currentId: string,
+  ) {
+    const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
+
+    const query = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p."blogId"='${blogId}' limit $1 offset $2`;
+    const posts = await this.dataSource.query(query, [bqDto.pageSize, offset]);
+
+    const totalQuery = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p."blogId"='${blogId}'`;
+    const totalCount = await this.dataSource.query(totalQuery);
+
+    const temp = posts.map((item) => {
+      item['extendedLikesInfo'] = {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      };
+      return item;
+    });
+    return {
+      pagesCount: Math.ceil(+totalCount[0].count / bqDto.pageSize),
+      page: bqDto.pageNumber,
+      pageSize: bqDto.pageSize,
+      totalCount: +totalCount[0].count,
+      items: temp,
+    };
   }
 }
