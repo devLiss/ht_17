@@ -19,18 +19,19 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       shortDescription: command.cpDto.shortDescription,
       content: command.cpDto.content,
       blogId: command.blog.id,
-      //blogName: command.blog.name,
       createdAt: new Date().toISOString(),
-      /*extendedLikesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [],
-      },*/
     };
 
     console.log(post);
     const createdPost = await this.postRepo.createPost(post);
+    if (createdPost) {
+      createdPost['extendedLikesInfo'] = {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      };
+    }
     console.log(createdPost);
     return createdPost;
   }
