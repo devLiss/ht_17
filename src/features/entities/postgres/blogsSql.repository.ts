@@ -39,21 +39,35 @@ export class BlogsSqlRepository {
     return this.dataSource.query(query);
   }
 
-  async getAll() {
-    const query = `select * from blogs`;
-    return this.dataSource.query(query);
+  async getAll(bqDto: BlogQueryDto) {
+    const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
+    const query = `select id, name, description, "websiteUrl" from blogs where name ilike '%${bqDto.searchNameTerm}%' order by "${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
+
+    console.log(query);
+    const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
+
+    const totalQuery = `select count(*) from blogs where name ilike '%${bqDto.searchNameTerm}%' `;
+    const totalCount = await this.dataSource.query(totalQuery);
+    console.log(totalCount);
+    return {
+      pagesCount: Math.ceil(+totalCount[0].count / bqDto.pageSize),
+      page: bqDto.pageNumber,
+      pageSize: bqDto.pageSize,
+      totalCount: +totalCount[0].count,
+      items: blogs,
+    };
   }
   async getAllPublic(queryDto: BlogQueryDto) {
     const offset = (queryDto.pageNumber - 1) * queryDto.pageSize;
 
-    const query = `select id, name, description, "websiteUrl" from blogs limit $1 offset $2`;
+    const query = `select id, name, description, "websiteUrl" from blogs where "isBanned" = false and name ilike '%${queryDto.searchNameTerm}%' order by "${queryDto.sortBy}" ${queryDto.sortDirection} limit $1 offset $2`;
     console.log(query);
     const blogs = await this.dataSource.query(query, [
       queryDto.pageSize,
       offset,
     ]);
 
-    const totalQuery = `select * from blogs`;
+    const totalQuery = `select count(*) from blogs where "isBanned" = false and name ilike '%${queryDto.searchNameTerm}%' `;
     const totalCount = await this.dataSource.query(totalQuery);
 
     return {
@@ -67,18 +81,17 @@ export class BlogsSqlRepository {
   async getAllByUser(bqDto: BlogQueryDto, userId: string) {
     const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
 
-    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where ownerId = '${userId}' limit $1 offset $2`;
-    console.log(query);
+    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where name ilike '%${bqDto.searchNameTerm}%' and ownerId = '${userId}'  order by "${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
     const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
 
-    const totalQuery = `select * from blogs where ownerId = '${userId}'`;
+    const totalQuery = `select count(*) from blogs where name ilike '%${bqDto.searchNameTerm}%' and ownerId = '${userId}'`;
     const totalCount = await this.dataSource.query(totalQuery);
 
     return {
-      pagesCount: Math.ceil(totalCount.length / bqDto.pageSize),
+      pagesCount: Math.ceil(+totalCount[0].count / bqDto.pageSize),
       page: bqDto.pageNumber,
       pageSize: bqDto.pageSize,
-      totalCount: totalCount.length,
+      totalCount: +totalCount[0].count,
       items: blogs,
     };
   }
