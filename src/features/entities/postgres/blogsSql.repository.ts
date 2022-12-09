@@ -36,6 +36,7 @@ export class BlogsSqlRepository {
   }
   async getAllPublic(queryDto: BlogQueryDto) {
     const query = `select * from blogs `;
+
     return this.dataSource.query(query, []);
   }
   async getAllByUser() {}
