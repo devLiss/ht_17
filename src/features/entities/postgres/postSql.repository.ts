@@ -1,5 +1,6 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { PostInputModelDto } from '../../api/bloggers/blogs/dto/postInputModel.dto';
 
 export class PostSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -23,7 +24,10 @@ export class PostSqlRepository {
   async deletePost(id: string) {
     return this.dataSource.query(`delete from posts where id = '${id}'`);
   }
-  async updatePost() {}
+  async updatePost(id: string, cpDto: PostInputModelDto) {
+    const query = `update posts set title = '${cpDto.title}', "shortDescription" = '${cpDto.shortDescription}', content = '${cpDto.content}' where id = '${id}'`;
+    return this.dataSource.query(query);
+  }
   async deleteAll() {
     return this.dataSource.query(`delete from posts`);
   }
