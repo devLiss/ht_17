@@ -32,6 +32,8 @@ import { UserQueryRepository } from '../../../../entities/mongo/user/infrastruct
 import { CheckBanGuard } from '../../../../../common/guards/checkBan.guard';
 import { CheckBlogBanGuard } from '../../../../../common/guards/checkBlogBan.guard';
 import { BannedUsersQueryRepo } from '../../../../entities/mongo/blogs/infrastructure/bannedUsers.query-repo';
+import { PostSqlRepository } from '../../../../entities/postgres/postSql.repository';
+import { UserSqlRepository } from '../../../../entities/postgres/userSql.repository';
 
 @Controller('posts')
 export class PostsController {
@@ -44,6 +46,8 @@ export class PostsController {
     private jwtService: JwtService,
     private userQueryRepo: UserQueryRepository,
     private bannedUserRepo: BannedUsersQueryRepo,
+    private postRepo: PostSqlRepository,
+    private userRepo: UserSqlRepository,
   ) {}
 
   @UseGuards(BearerAuthGuard)
@@ -165,18 +169,24 @@ export class PostsController {
       console.log('UserId = ' + userId);
 
       if (userId) {
-        const user = await this.userQueryRepo.findById(userId.toString());
+        const user = await this.userRepo.getUserById(userId);
         if (user) {
           currentUserId = user.id;
         }
       }
     }
 
-    const post = await this.postQueryRepo.findPostById(id, currentUserId);
+    const post = await this.postRepo.getPostById(id);
 
     if (!post) throw new NotFoundException();
-    const blog = await this.blogQueryRepo.findBlogById(post.blogId);
-    if (blog.banInfo.isBanned) throw new NotFoundException();
+    post['extendedLikesInfo'] = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus: 'None',
+      newestLikes: [],
+    };
+    //const blog = await this.blogQueryRepo.findBlogById(post.blogId);
+    //if (blog.banInfo.isBanned) throw new NotFoundException();
     return post;
   }
 }
