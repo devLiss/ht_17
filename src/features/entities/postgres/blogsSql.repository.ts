@@ -48,7 +48,7 @@ export class BlogsSqlRepository {
 
     const query = `select id, name, description, "websiteUrl" from blogs limit $1 offset $2`;
     console.log(query);
-    const blogs = await this.dataSource.query(`query`, [
+    const blogs = await this.dataSource.query(query, [
       queryDto.pageSize,
       offset,
     ]);
@@ -64,7 +64,24 @@ export class BlogsSqlRepository {
       items: blogs,
     };
   }
-  async getAllByUser() {}
+  async getAllByUser(bqDto: BlogQueryDto, userId: string) {
+    const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
+
+    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where ownerId = '${userId}' limit $1 offset $2`;
+    console.log(query);
+    const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
+
+    const totalQuery = `select * from blogs where ownerId = '${userId}'`;
+    const totalCount = await this.dataSource.query(totalQuery);
+
+    return {
+      pagesCount: Math.ceil(totalCount.length / bqDto.pageSize),
+      page: bqDto.pageNumber,
+      pageSize: bqDto.pageSize,
+      totalCount: totalCount.length,
+      items: blogs,
+    };
+  }
 
   async getById(id: string) {
     const query = `select * from blogs where id=$1`;
