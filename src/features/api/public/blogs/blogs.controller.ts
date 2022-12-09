@@ -14,6 +14,7 @@ import { Request } from 'express';
 import mongoose from 'mongoose';
 import { JwtService } from '../sessions/application/jwt.service';
 import { UserQueryRepository } from '../../../entities/mongo/user/infrastructure/user-query.repository';
+import { BlogsSqlRepository } from '../../../entities/postgres/blogsSql.repository';
 
 @Controller('blogs')
 export class PublicBlogsController {
@@ -23,11 +24,12 @@ export class PublicBlogsController {
     private postsQueryRepo: PostsQueryRepository,
     private jwtService: JwtService,
     private userQueryRepo: UserQueryRepository,
+    private blogRepo: BlogsSqlRepository,
   ) {}
 
   @Get()
   async getAllBlogs(@Query() bqDto: BlogQueryDto) {
-    const data = await this.blogQueryRepo.findAllBlogsPublic(bqDto);
+    const data = await this.blogRepo.getAllPublic(bqDto);
     return data;
   }
 
