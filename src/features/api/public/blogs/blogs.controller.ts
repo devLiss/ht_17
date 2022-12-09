@@ -15,6 +15,8 @@ import mongoose from 'mongoose';
 import { JwtService } from '../sessions/application/jwt.service';
 import { UserQueryRepository } from '../../../entities/mongo/user/infrastructure/user-query.repository';
 import { BlogsSqlRepository } from '../../../entities/postgres/blogsSql.repository';
+import { PostSqlRepository } from '../../../entities/postgres/postSql.repository';
+import { UserSqlRepository } from '../../../entities/postgres/userSql.repository';
 
 @Controller('blogs')
 export class PublicBlogsController {
@@ -23,9 +25,10 @@ export class PublicBlogsController {
     private postCUService: PostsService,
     private postsQueryRepo: PostsQueryRepository,
     private jwtService: JwtService,
-    private userQueryRepo: UserQueryRepository,
+    private userQueryRepo: UserSqlRepository,
     //private blogRepo: BlogsSqlRepository,
     private blogRepo: BlogsSqlRepository,
+    private postRepo: PostSqlRepository,
   ) {}
 
   @Get()
@@ -48,18 +51,14 @@ export class PublicBlogsController {
       console.log('UserId = ' + userId);
 
       if (userId) {
-        const user = await this.userQueryRepo.findById(userId.toString());
+        const user = await this.userQueryRepo.getUserById(userId.toString());
         if (user) {
           currentUserId = user.id;
         }
       }
     }
     console.log(bqDto);
-    return await this.postsQueryRepo.getPostsByBlogId(
-      blogId,
-      bqDto,
-      currentUserId,
-    );
+    return await this.postRepo.getPostsByBlogId(blogId, bqDto, '');
   }
 
   @Get('/:id')
