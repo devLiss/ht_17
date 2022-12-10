@@ -94,6 +94,7 @@ import { AppController } from './app.controller';
 import { BlogsSqlRepository } from './features/entities/postgres/blogsSql.repository';
 import { PostSqlRepository } from './features/entities/postgres/postSql.repository';
 import { CommentsSqlRepository } from './features/entities/postgres/commentsSql.repository';
+import { BlogBannedUsersSqlRepository } from './features/entities/postgres/blogBannedUsersSql.repository';
 
 mongoose.set('toJSON', {
   virtuals: true,
@@ -148,6 +149,7 @@ const sqlRepos = [
   BlogsSqlRepository,
   PostSqlRepository,
   CommentsSqlRepository,
+  BlogBannedUsersSqlRepository,
 ];
 const services = [
   JwtService,

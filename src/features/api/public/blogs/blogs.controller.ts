@@ -13,7 +13,6 @@ import { PostsQueryRepository } from '../../../entities/mongo/post/infrastructur
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { JwtService } from '../sessions/application/jwt.service';
-import { UserQueryRepository } from '../../../entities/mongo/user/infrastructure/user-query.repository';
 import { BlogsSqlRepository } from '../../../entities/postgres/blogsSql.repository';
 import { PostSqlRepository } from '../../../entities/postgres/postSql.repository';
 import { UserSqlRepository } from '../../../entities/postgres/userSql.repository';

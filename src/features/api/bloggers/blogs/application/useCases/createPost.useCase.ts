@@ -1,8 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePostByIdDto } from '../../../../public/blogs/dto/createPostById.dto';
-import { PostsRepository } from '../../../../../entities/mongo/post/infrastructure/posts.repository';
-import { LikesRepository } from '../../../../../entities/mongo/comment/infrastucture/likes.repository';
-import * as mongoose from 'mongoose';
 import { PostSqlRepository } from '../../../../../entities/postgres/postSql.repository';
 
 export class CreatePostCommand {

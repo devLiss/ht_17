@@ -1,8 +1,6 @@
 import { BlogInputModelDto } from '../../dto/blogInputModel.dto';
 import { BlogsRepo } from '../../../../../entities/mongo/blogs/infrastructure/blog.repository';
-import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogDocument } from '../../../../../entities/mongo/blogs/entities/blogs.schema';
 import { BlogsSqlRepository } from '../../../../../entities/postgres/blogsSql.repository';
 
 export class CreateBlogCommand {
