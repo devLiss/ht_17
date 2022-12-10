@@ -101,4 +101,13 @@ export class BlogsSqlRepository {
     const blog = await this.dataSource.query(query, [id]);
     return blog.length ? blog[0] : null;
   }
+  async banBlog(id: string, isBanned: boolean) {
+    console.log('Ban blog');
+    console.log(isBanned);
+
+    const banDate = isBanned ? `'${new Date().toISOString()}'` : null;
+    return this.dataSource.query(
+      `update blogs set "isBanned" = ${isBanned}, "banDate" = ${banDate} where id = '${id}'`,
+    );
+  }
 }
