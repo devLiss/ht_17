@@ -8,18 +8,19 @@ export class BlogBannedUsersSqlRepository {
 
   //TODO: разрабраться с типами
   async banUserForBlog(bannedUser: any) {
-    const query = `insert into "blogUserBan" ("banDate", "isBanned", "userId", "blogId") values ($1, $2, $3, $4)`;
+    const query = `insert into "blogUserBan" ("banDate", "isBanned", "banReason","userId", "blogId") values ($1, $2, $3, $4,$5)`;
     return this.dataSource.query(query, [
       bannedUser.banDate,
       true,
-      bannedUser.userId,
+      bannedUser.banReason,
+      bannedUser.id,
       bannedUser.blogId,
     ]);
   }
 
   async unbanUserForBlog(blogId: string, userId: string) {
     return this.dataSource.query(
-      `delete from "blogUserBan" where "userId" = ${userId} and "blogId" = ${blogId}`,
+      `delete from "blogUserBan" where "userId" = '${userId}' and "blogId" = '${blogId}'`,
     );
   }
 
@@ -59,5 +60,13 @@ export class BlogBannedUsersSqlRepository {
       totalCount: +totalCount[0].count,
       items: temp,
     };
+  }
+
+  async getByBlogIdAndUserId(blogId: string, userId: string) {
+    const banData = await this.dataSource.query(
+      `select * from "blogUserBan" where "blogId" = '${blogId}' and "userId" = '${userId}'`,
+    );
+
+    return banData.length ? banData[0] : null;
   }
 }
