@@ -14,12 +14,8 @@ import { BearerAuthGuard } from '../../../../../common/guards/bearerAuth.guard';
 import { BloggerUserQueryDto } from '../dto/bloggerUserQuery.dto';
 import { BloggerBanUserDto } from '../../blogs/dto/bloggerBanUser.dto';
 import { CheckBlogInBodyGuard } from '../../../../../common/guards/checkBlogInBody.guard';
-import { Blog } from '../../../../../common/decorators/blog.decorator';
 import { BanUserCommand } from '../application/useCases/banUser.useCase';
-import {
-  GetBannedUsersForBlogsCommand,
-  GetBannedUsersForBlogsUseCase,
-} from '../application/useCases/getBannedUsersForBlogs.useCase';
+import { GetBannedUsersForBlogsCommand } from '../application/useCases/getBannedUsersForBlogs.useCase';
 import { CheckUserGuard } from '../../../../../common/guards/checkUser.guard';
 import { CheckBlogGuard } from '../../../../../common/guards/checkBlog.guard';
 
