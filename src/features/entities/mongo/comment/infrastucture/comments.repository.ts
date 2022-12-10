@@ -9,7 +9,7 @@ export class CommentsRepository {
     @InjectModel(Like.name) private likeModel: Model<LikeDocument>,
   ) {}
 
-  async createComment(comment: any) {
+  /*async createComment(comment: any) {
     const createdComment = new this.commentModel(comment);
     await createdComment.save();
 
@@ -22,7 +22,7 @@ export class CommentsRepository {
     };
 
     return createdComment.toJSON();
-  }
+  }*/
 
   async updateUserInfo(user: any) {
     /**/

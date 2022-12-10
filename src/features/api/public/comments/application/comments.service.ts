@@ -6,6 +6,7 @@ import { LikesRepository } from '../../../../entities/mongo/comment/infrastuctur
 import { LikesInfo } from '../../../../entities/mongo/comment/entities/likesInfo.schema';
 import { Like } from '../../../../entities/mongo/comment/entities/likes.schema';
 import * as mongoose from 'mongoose';
+import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 
 @Injectable()
 export class CommentsService {
@@ -13,20 +14,18 @@ export class CommentsService {
     protected commentRepo: CommentsRepository,
     protected commentQueryRepo: CommentsQueryRepository,
     private likesRepo: LikesRepository,
+    private comRepo: CommentsSqlRepository,
   ) {}
   async createComment(content: string, postId: string, user: any) {
     const newComment = {
       content: content,
-      postId: new mongoose.Types.ObjectId(postId),
+      postId: postId,
       userId: user.id,
       userLogin: user.login,
       createdAt: new Date().toISOString(),
-      isBanned: user.banInfo.isBanned,
     };
 
-    const createdComment = await this.commentRepo.createComment(newComment);
-    delete createdComment.postId;
-    delete createdComment.isBanned;
+    const createdComment = await this.comRepo.create(newComment);
     console.log(createdComment);
     return createdComment;
   }
