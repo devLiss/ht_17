@@ -28,8 +28,8 @@ export class BlogBannedUsersSqlRepository {
     const orderBy =
       buqDto.sortBy != 'createdAt'
         ? `"${buqDto.sortBy}" COLLATE "C"`
-        : `"${buqDto.sortBy}"`;
-    const query = `select * from "blogUserBan" where "blogId" = '${blogId}' order by ${orderBy} ${buqDto.sortDirection} limit $1 offset $2 `;
+        : `b."${buqDto.sortBy}"`;
+    const query = `select b.*, u.* from "blogUserBan" b left join users u on b."userId" = u.id where "blogId" = '${blogId}' order by ${orderBy} ${buqDto.sortDirection} limit $1 offset $2 `;
     console.log(query);
     const users = await this.dataSource.query(query, [buqDto.pageSize, offset]);
 
@@ -37,12 +37,27 @@ export class BlogBannedUsersSqlRepository {
       `select count(*) from "blogUserBan" where "blogId" = '${blogId}'`,
     );
 
+    const temp = users.map((item) => {
+      const t = {
+        id: item.id,
+        login: item.login,
+        email: item.email,
+        createdAt: item.createdAt,
+        banInfo: {
+          isBanned: !!item.isBanned,
+          banDate: item.banDate,
+          banReason: item.banReason,
+        },
+      };
+      console.log(t);
+      return t;
+    });
     return {
       pagesCount: Math.ceil(+totalCount[0].count / buqDto.pageSize),
       page: buqDto.pageNumber,
       pageSize: buqDto.pageSize,
       totalCount: +totalCount[0].count,
-      items: users,
+      items: temp,
     };
   }
 }
