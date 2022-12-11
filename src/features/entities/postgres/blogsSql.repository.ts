@@ -42,8 +42,13 @@ export class BlogsSqlRepository {
 
   async getAll(bqDto: BlogQueryDto) {
     const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
+
+    const orderBy =
+      bqDto.sortBy != 'createdAt'
+        ? `"${bqDto.sortBy}" COLLATE "C"`
+        : `b."${bqDto.sortBy}"`;
     //select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id
-    const query = `select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id where name ilike '%${bqDto.searchNameTerm}%' order by b."${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
+    const query = `select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id where name ilike '%${bqDto.searchNameTerm}%' order by ${orderBy} ${bqDto.sortDirection} limit $1 offset $2`;
 
     console.log(query);
     const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
