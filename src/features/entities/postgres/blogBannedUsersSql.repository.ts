@@ -42,7 +42,6 @@ export class BlogBannedUsersSqlRepository {
       const t = {
         id: item.id,
         login: item.login,
-        createdAt: item.createdAt,
         banInfo: {
           isBanned: !!item.isBanned,
           banDate: item.banDate,
