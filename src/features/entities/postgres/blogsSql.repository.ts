@@ -42,20 +42,40 @@ export class BlogsSqlRepository {
 
   async getAll(bqDto: BlogQueryDto) {
     const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
-    const query = `select id, name, description, "websiteUrl" from blogs where name ilike '%${bqDto.searchNameTerm}%' order by "${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
+    //select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id
+    const query = `select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id where name ilike '%${bqDto.searchNameTerm}%' order by b."${bqDto.sortBy}" ${bqDto.sortDirection} limit $1 offset $2`;
 
     console.log(query);
     const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
 
     const totalQuery = `select count(*) from blogs where name ilike '%${bqDto.searchNameTerm}%' `;
     const totalCount = await this.dataSource.query(totalQuery);
+
+    const mapped = blogs.map((item) => {
+      const t = {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        websiteUrl: item.websiteUrl,
+        createdAt: item.createdAt,
+        blogOwnerInfo: {
+          userId: item.userId,
+          userLogin: item.userLogin,
+        },
+        banInfo: {
+          isBanned: item.isBanned,
+          banDate: item.banDate,
+        },
+      };
+      return t;
+    });
     console.log(totalCount);
     return {
       pagesCount: Math.ceil(+totalCount[0].count / bqDto.pageSize),
       page: bqDto.pageNumber,
       pageSize: bqDto.pageSize,
       totalCount: +totalCount[0].count,
-      items: blogs,
+      items: mapped,
     };
   }
   async getAllPublic(queryDto: BlogQueryDto) {
