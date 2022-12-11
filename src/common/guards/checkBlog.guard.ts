@@ -18,7 +18,7 @@ export class CheckBlogGuard implements CanActivate {
     const blog = await this.blogQueryRepo.getById(req.params.id);
 
     if (!blog) throw new NotFoundException();
-    //if (blog.blogOwnerInfo.userId != user.id) throw new ForbiddenException();
+    if (blog.ownerId != user.id) throw new ForbiddenException();
     req.blog = blog;
     return true;
   }
