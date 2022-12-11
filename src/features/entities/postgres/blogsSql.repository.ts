@@ -27,7 +27,7 @@ export class BlogsSqlRepository {
     description: string,
     websiteUrl: string,
   ) {
-    const query = `update blogs set name = $1, description = $2, "websiteUrl" = $3 where id = ${id}`;
+    const query = `update blogs set name = $1, description = $2, "websiteUrl" = $3 where id = '${id}'`;
     await this.dataSource.query(query, [name, description, websiteUrl]);
     return true;
   }
