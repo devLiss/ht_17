@@ -65,6 +65,7 @@ export class PublicBlogsController {
     const blog = await this.blogRepo.getById(id);
     console.log(blog);
     if (!blog) throw new NotFoundException();
+    if (blog.isBanned) throw new NotFoundException();
     return {
       id: blog.id,
       name: blog.name,
