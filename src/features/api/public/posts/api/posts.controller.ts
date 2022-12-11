@@ -35,6 +35,7 @@ import { BannedUsersQueryRepo } from '../../../../entities/mongo/blogs/infrastru
 import { PostSqlRepository } from '../../../../entities/postgres/postSql.repository';
 import { UserSqlRepository } from '../../../../entities/postgres/userSql.repository';
 import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
+import { BlogsSqlRepository } from '../../../../entities/postgres/blogsSql.repository';
 
 @Controller('posts')
 export class PostsController {
@@ -43,6 +44,7 @@ export class PostsController {
     private postRepo: PostSqlRepository,
     private userRepo: UserSqlRepository,
     private commentService: CommentsService,
+    private blogRepo: BlogsSqlRepository,
   ) {}
 
   /*@UseGuards(BearerAuthGuard)
@@ -152,7 +154,7 @@ export class PostsController {
     );
     return data;
   }
-
+*/
   //@UseGuards(CheckBlogBanGuard)
   @Get(':id')
   async getPostById(@Param('id') id: string, @Req() req: Request) {
@@ -180,8 +182,8 @@ export class PostsController {
       myStatus: 'None',
       newestLikes: [],
     };
-    //const blog = await this.blogQueryRepo.findBlogById(post.blogId);
-    //if (blog.banInfo.isBanned) throw new NotFoundException();
+    const blog = await this.blogRepo.getById(post.blogId);
+    if (blog.isBanned) throw new NotFoundException();
     return post;
-  }*/
+  }
 }
