@@ -1,5 +1,6 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { PaginatingQueryDto } from '../../api/bloggers/blogs/dto/paginatingQuery.dto';
 
 export class CommentsSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -15,4 +16,25 @@ export class CommentsSqlRepository {
 
     return createdComment;
   }
+
+  async deleteById(id: string) {
+    return this.dataSource.query(`delete from comments where id = '${id}'`);
+  }
+
+  async update(id: string, content: string) {
+    const query = `update comments set content = '${content} where id = '${id}'`;
+    return this.dataSource.query(query);
+  }
+
+  async getCommentById(id: string) {
+    const query = `select * from comments where id = '${id}'`;
+    const comment = await this.dataSource.query(query);
+    return comment.length ? comment[0] : null;
+  }
+
+  async getCommentByIdWithLikes(id: string, userId: string) {}
+
+  async getCommentByPostId() {}
+
+  async getCommentsForBlogger(id: string, query: PaginatingQueryDto) {}
 }
