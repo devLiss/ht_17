@@ -22,6 +22,9 @@ import { Request } from 'express';
 import * as mongoose from 'mongoose';
 import { JwtService } from '../../sessions/application/jwt.service';
 import { UserQueryRepository } from '../../../../entities/mongo/user/infrastructure/user-query.repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { MakeLikeForCommentCommand } from '../application/handlers/makeLikeForComment.handler';
+import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 
 @Controller('comments')
 export class CommentsController {
@@ -30,6 +33,8 @@ export class CommentsController {
     protected commentQueryRepo: CommentsQueryRepository,
     private jwtService: JwtService,
     private userQueryRepo: UserQueryRepository,
+    private commentRepo: CommentsSqlRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @UseGuards(BearerAuthGuard)
@@ -40,17 +45,17 @@ export class CommentsController {
     @User() user,
     @Body() lsDto: LikeStatusDto,
   ) {
-    const comment = await this.commentQueryRepo.getCommentById(
-      id /*, user.id*/,
-    );
+    const comment = await this.commentRepo.getCommentById(id /*, user.id*/);
     if (!comment) {
       throw new NotFoundException();
     }
-    const result = await this.commentsService.makeLike(
+    const result = await this.commandBus.execute(
+      new MakeLikeForCommentCommand(id, user.id, lsDto.likeStatus),
+    ); /*this.commentsService.makeLike(
       id,
       user,
       lsDto.likeStatus,
-    );
+    );*/
   }
 
   @Get(':id')
