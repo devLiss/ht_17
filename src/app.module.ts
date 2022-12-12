@@ -95,6 +95,9 @@ import { BlogsSqlRepository } from './features/entities/postgres/blogsSql.reposi
 import { PostSqlRepository } from './features/entities/postgres/postSql.repository';
 import { CommentsSqlRepository } from './features/entities/postgres/commentsSql.repository';
 import { BlogBannedUsersSqlRepository } from './features/entities/postgres/blogBannedUsersSql.repository';
+import { UpdateCommentHandler } from './features/api/public/comments/application/handlers/updateComment.handler';
+import { DeleteCommentHandler } from './features/api/public/comments/application/handlers/deleteComment.handler';
+import { MakeLikeForCommentHandler } from './features/api/public/comments/application/handlers/makeLikeForComment.handler';
 
 mongoose.set('toJSON', {
   virtuals: true,
@@ -129,6 +132,9 @@ const handlers = [
   GetCommentsUseCase,
   BanBlogUseCase,
   CreateUserUseCase,
+  UpdateCommentHandler,
+  DeleteCommentHandler,
+  MakeLikeForCommentHandler,
 ];
 const repos = [
   BlogsRepo,

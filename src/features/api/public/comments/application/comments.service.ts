@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommentsRepository } from '../../../../entities/mongo/comment/infrastucture/comments.repository';
 import { CommentsQueryRepository } from '../../../../entities/mongo/comment/infrastucture/comments-query.repository';
-import { ObjectId } from 'mongoose';
 import { LikesRepository } from '../../../../entities/mongo/comment/infrastucture/likes.repository';
 import { LikesInfo } from '../../../../entities/mongo/comment/entities/likesInfo.schema';
 import { Like } from '../../../../entities/mongo/comment/entities/likes.schema';
