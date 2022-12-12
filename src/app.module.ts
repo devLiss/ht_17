@@ -98,6 +98,7 @@ import { BlogBannedUsersSqlRepository } from './features/entities/postgres/blogB
 import { UpdateCommentHandler } from './features/api/public/comments/application/handlers/updateComment.handler';
 import { DeleteCommentHandler } from './features/api/public/comments/application/handlers/deleteComment.handler';
 import { MakeLikeForCommentHandler } from './features/api/public/comments/application/handlers/makeLikeForComment.handler';
+import { LikesSqlRepository } from './features/entities/postgres/likesSql.repository';
 
 mongoose.set('toJSON', {
   virtuals: true,
@@ -156,6 +157,7 @@ const sqlRepos = [
   PostSqlRepository,
   CommentsSqlRepository,
   BlogBannedUsersSqlRepository,
+  LikesSqlRepository,
 ];
 const services = [
   JwtService,
