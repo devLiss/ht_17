@@ -17,8 +17,8 @@ export class CommentsSqlRepository {
     ]);
 
     const commentId = createdComment[0].id;
-    const q = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" ,
+    const q = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ,
     coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${uuid()}'  ),'None') as "myStatus"
     from "comments" c join users u on c."userId" = u.id where c.id = '${commentId}'`;
     console.log(q);
@@ -72,8 +72,8 @@ export class CommentsSqlRepository {
         ? `"${pagination.sortBy}" COLLATE "C"`
         : `c."${pagination.sortBy}"`;
 
-    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" ,
+    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ,
     coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"
     from "comments" c join users u on c."userId" = u.id where c."postId" = '${postId}' order by ${orderBy} limit ${pagination.pageSize} offset ${offset}`;
 
