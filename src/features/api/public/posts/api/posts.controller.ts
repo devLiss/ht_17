@@ -34,6 +34,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { MakeLikeCommand } from '../../comments/application/handlers/makeLike.handler';
 import { BlogBannedUsers } from '../../../../entities/mongo/blogs/entities/blogBannedUsers.schema';
 import { BlogBannedUsersSqlRepository } from '../../../../entities/postgres/blogBannedUsersSql.repository';
+import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 
 @Controller('posts')
 export class PostsController {
@@ -45,6 +46,7 @@ export class PostsController {
     private blogRepo: BlogsSqlRepository,
     private commandBus: CommandBus,
     private blogBannedUsers: BlogBannedUsersSqlRepository,
+    private commentRepo: CommentsSqlRepository,
   ) {}
 
   @UseGuards(BearerAuthGuard)
@@ -63,16 +65,16 @@ export class PostsController {
     );
   }
 
-  /* @Get(':postId/comments')
+  @Get(':postId/comments')
   async getCommentByPostId(
     @Param('postId') postId: string,
     @Query() query: PostQueryDto,
     @Req() req: Request,
   ) {
-    const post = await this.postQueryRepo.getPostById(postId);
+    const post = await this.postRepo.getPostById(postId);
     if (!post) throw new NotFoundException();
 
-    let currentUserId = new mongoose.Types.ObjectId();
+    let currentUserId = null;
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       console.log(token);
@@ -80,20 +82,20 @@ export class PostsController {
       console.log('UserId = ' + userId);
 
       if (userId) {
-        const user = await this.userQueryRepo.findById(userId.toString());
+        const user = await this.userRepo.getUserById(userId.toString());
         if (user) {
           currentUserId = user.id;
         }
       }
     }
-    const comments = await this.commentsQueryRepo.getCommentsByPostId(
+    const comments = await this.commentRepo.getCommentByPostId(
       currentUserId,
       postId,
       query,
     );
     return comments;
   }
-*/
+
   @UseGuards(BearerAuthGuard)
   @Post(':id/comments')
   @HttpCode(201)
