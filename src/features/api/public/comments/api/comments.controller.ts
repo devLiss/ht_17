@@ -23,7 +23,7 @@ import * as mongoose from 'mongoose';
 import { JwtService } from '../../sessions/application/jwt.service';
 import { UserQueryRepository } from '../../../../entities/mongo/user/infrastructure/user-query.repository';
 import { CommandBus } from '@nestjs/cqrs';
-import { MakeLikeForCommentCommand } from '../application/handlers/makeLikeForComment.handler';
+import { MakeLikeCommand } from '../application/handlers/makeLike.handler';
 import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 
 @Controller('comments')
@@ -46,11 +46,12 @@ export class CommentsController {
     @Body() lsDto: LikeStatusDto,
   ) {
     const comment = await this.commentRepo.getCommentById(id /*, user.id*/);
+    console.log(comment);
     if (!comment) {
       throw new NotFoundException();
     }
     const result = await this.commandBus.execute(
-      new MakeLikeForCommentCommand(id, user.id, lsDto.likeStatus),
+      new MakeLikeCommand(id, 'comment', user.id, lsDto.likeStatus),
     ); /*this.commentsService.makeLike(
       id,
       user,
