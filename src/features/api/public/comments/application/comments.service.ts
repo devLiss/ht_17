@@ -26,6 +26,7 @@ export class CommentsService {
 
     const createdComment = await this.comRepo.create(newComment);
     console.log(createdComment);
+
     return createdComment;
   }
   async deleteComment(id: string) {

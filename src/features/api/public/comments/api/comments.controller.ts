@@ -67,7 +67,7 @@ export class CommentsController {
     @Param('id') id: string,
     @Req() req: Request,
   ) {
-    let currentUserId = new mongoose.Types.ObjectId();
+    let currentUserId = null;
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       console.log(token);
@@ -81,14 +81,14 @@ export class CommentsController {
         }
       }
     }
-    const comment = await this.commentQueryRepo.getCommentByIdWithLikes(
+    const comment = await this.commentRepo.getCommentByIdWithLikes(
       id,
       currentUserId,
     ); //.getCommentById(id);
-    if (!comment) {
+    /*if (!comment) {
       throw new NotFoundException();
     }
-    return comment;
+    return comment;*/
   }
 
   @UseGuards(BearerAuthGuard)

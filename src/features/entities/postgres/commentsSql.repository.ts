@@ -2,12 +2,13 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PaginatingQueryDto } from '../../api/bloggers/blogs/dto/paginatingQuery.dto';
 import { PostQueryDto } from '../../api/public/posts/dto/postQuery.dto';
+import { uuid } from 'uuidv4';
 
 export class CommentsSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async create(comment: any) {
-    const query = `insert into comments ("content","createdAt", "userId", "postId") values ($1, $2, $3, $4)`;
+    const query = `insert into comments ("content","createdAt", "userId", "postId") values ($1, $2, $3, $4) returning id`;
     const createdComment = await this.dataSource.query(query, [
       comment.content,
       comment.createdAt,
@@ -15,7 +16,31 @@ export class CommentsSqlRepository {
       comment.postId,
     ]);
 
-    return createdComment;
+    const commentId = createdComment[0].id;
+    const q = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" ,
+    coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${uuid()}'  ),'None') as "myStatus"
+    from "comments" c join users u on c."userId" = u.id where c.id = '${commentId}'`;
+    console.log(q);
+    const crComment = await this.dataSource.query(q);
+    console.log(crComment);
+    const temp = crComment.map((item) => {
+      const t = {
+        id: item.id,
+        content: item.content,
+        userId: item.userId,
+        userLogin: item.userLogin,
+        createdAt: item.createdAt,
+        likesInfo: {
+          likesCount: item.likesCount,
+          dislikesCount: item.dislikesCount,
+          myStatus: item.myStatus,
+        },
+      };
+      return t;
+    });
+    console.log(temp);
+    return temp[0];
   }
 
   async deleteById(id: string) {
@@ -71,6 +96,7 @@ export class CommentsSqlRepository {
           myStatus: item.myStatus,
         },
       };
+      return t;
     });
 
     return {
