@@ -25,6 +25,8 @@ import { UserQueryRepository } from '../../../../entities/mongo/user/infrastruct
 import { CommandBus } from '@nestjs/cqrs';
 import { MakeLikeCommand } from '../application/handlers/makeLike.handler';
 import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
+import { DeleteCommentCommand } from '../application/handlers/deleteComment.handler';
+import { UpdateCommentCommand } from '../application/handlers/updateComment.handler';
 
 @Controller('comments')
 export class CommentsController {
@@ -97,17 +99,19 @@ export class CommentsController {
     @User() user,
     @Req() req: Request,
   ) {
-    const comment = await this.commentQueryRepo.getCommentById(id);
+    const comment = await this.commentRepo.getCommentById(id);
     if (!comment) {
       throw new NotFoundException();
     }
 
-    if (comment.userId.toString() !== user._id.toString()) {
+    if (comment.userId !== user.id) {
       throw new ForbiddenException();
     }
 
-    const isDeleted = await this.commentsService.deleteComment(comment.id);
-    if (!isDeleted) throw new NotFoundException();
+    const isDeleted = await this.commandBus.execute(
+      new DeleteCommentCommand(id),
+    ); //this.commentsService.deleteComment(comment.id);
+    //if (!isDeleted) throw new NotFoundException();
   }
 
   @UseGuards(BearerAuthGuard)
@@ -118,18 +122,20 @@ export class CommentsController {
     @Param('commentId') id: string,
     @Body() ucDto: UpdateCommentDto,
   ) {
-    const comment = await this.commentQueryRepo.getCommentById(id);
+    const comment = await this.commentRepo.getCommentById(id);
     if (!comment) {
       throw new NotFoundException();
     }
 
-    if (comment.userId.toString() !== user.id.toString()) {
+    if (comment.userId !== user.id) {
       throw new ForbiddenException();
     }
 
-    const isModified = await this.commentsService.updateComment(
+    const isModified = await this.commandBus.execute(
+      new UpdateCommentCommand(comment.id, ucDto.content),
+    ); /*.updateComment(
       comment.id,
       ucDto.content,
-    );
+    );*/
   }
 }

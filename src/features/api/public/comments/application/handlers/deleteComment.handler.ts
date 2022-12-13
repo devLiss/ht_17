@@ -1,16 +1,17 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommentsSqlRepository } from '../../../../../entities/postgres/commentsSql.repository';
 
 export class DeleteCommentCommand {
-  constructor() {}
+  constructor(public id: string) {}
 }
 
 @CommandHandler(DeleteCommentCommand)
 export class DeleteCommentHandler
   implements ICommandHandler<DeleteCommentCommand>
 {
-  constructor() {}
+  constructor(private commentRepo: CommentsSqlRepository) {}
 
   execute(command: DeleteCommentCommand): Promise<any> {
-    return Promise.resolve(undefined);
+    return this.commentRepo.deleteById(command.id);
   }
 }
