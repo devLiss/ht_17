@@ -29,6 +29,7 @@ export class CommentsSqlRepository {
   async getCommentById(id: string) {
     const query = `select * from comments where id = '${id}'`;
     const comment = await this.dataSource.query(query);
+    console.log(comment);
     return comment.length ? comment[0] : null;
   }
 

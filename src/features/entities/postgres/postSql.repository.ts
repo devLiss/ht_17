@@ -2,6 +2,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PostInputModelDto } from '../../api/bloggers/blogs/dto/postInputModel.dto';
 import { BlogQueryDto } from '../../api/public/blogs/dto/blogQuery.dto';
+import { PostQueryDto } from '../../api/public/posts/dto/postQuery.dto';
 
 export class PostSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -39,32 +40,134 @@ export class PostSqlRepository {
     return post.length ? post[0] : null;
   }
 
+  async getPostByIdView(id: string, userId: string) {
+    const userForLikes = userId ? `'${userId}'` : `b."ownerId"`;
+
+    const query = `select 
+      p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
+      (select count(*) as "dislikesCount" from likes l where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id ) as dislikesCount ,
+      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userForLikes}  ),'None') as myStatus ) x2)as "extendedLikesInfo",
+      (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
+      from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
+      and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
+        from  posts p  join blogs b on p."blogId" = b.id where p.id = '${id}'`;
+
+    const posts = await this.dataSource.query(query);
+    const temp = posts.map((item) => {
+      const t = {
+        title: item.title,
+        content: item.content,
+        shortDescription: item.shortDescription,
+        createdAt: item.createdAt,
+        id: item.id,
+        blogId: item.blogId,
+        blogName: item.blogName,
+        extendedLikesInfo: {
+          ...item.extendedLikesInfo,
+          newestLikes: item.newestLikes,
+        },
+      };
+      return t;
+    });
+    return temp.length ? temp[0] : null;
+  }
+
   async getPostsByBlogId(
     blogId: string,
     bqDto: BlogQueryDto,
     currentId: string,
   ) {
     const offset = (bqDto.pageNumber - 1) * bqDto.pageSize;
+    const orderBy =
+      bqDto.sortBy != 'createdAt'
+        ? `"${bqDto.sortBy}" COLLATE "C"`
+        : `p."${bqDto.sortBy}"`;
 
-    const query = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p."blogId"='${blogId}' limit $1 offset $2`;
-    const posts = await this.dataSource.query(query, [bqDto.pageSize, offset]);
+    const userForLikes = currentId ? `'${currentId}'` : `b."ownerId"`;
 
-    const totalQuery = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p."blogId"='${blogId}'`;
+    const query = `select 
+      p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
+      (select count(*) as "dislikesCount" from likes l where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id ) as dislikesCount ,
+      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userForLikes}  ),'None') as myStatus ) x2)as "extendedLikesInfo",
+      (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
+      from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
+      and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
+        from  posts p  join blogs b on p."blogId" = b.id where p."blogId" = '${blogId}' order by ${orderBy} limit ${bqDto.pageSize} offset ${offset}`;
+
+    const posts = await this.dataSource.query(query);
+
+    const totalQuery = `select count(*) from posts p join blogs b on p."blogId" = b.id where p."blogId"='${blogId}'`;
     const totalCount = await this.dataSource.query(totalQuery);
 
     const temp = posts.map((item) => {
-      item['extendedLikesInfo'] = {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [],
+      const t = {
+        title: item.title,
+        content: item.content,
+        shortDescription: item.shortDescription,
+        createdAt: item.createdAt,
+        id: item.id,
+        blogId: item.blogId,
+        blogName: item.blogName,
+        extendedLikesInfo: {
+          ...item.extendedLikesInfo,
+          newestLikes: item.newestLikes,
+        },
       };
-      return item;
+      return t;
     });
     return {
       pagesCount: Math.ceil(+totalCount[0].count / bqDto.pageSize),
       page: bqDto.pageNumber,
       pageSize: bqDto.pageSize,
+      totalCount: +totalCount[0].count,
+      items: temp,
+    };
+  }
+
+  async getAllPosts(userId: string, pqDto: PostQueryDto) {
+    const offset = (pqDto.pageNumber - 1) * pqDto.pageSize;
+
+    const orderBy =
+      pqDto.sortBy != 'createdAt'
+        ? `"${pqDto.sortBy}" COLLATE "C"`
+        : `p."${pqDto.sortBy}"`;
+
+    const userForLikes = userId ? `'${userId}'` : `b."ownerId"`;
+    const query = `select 
+      p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
+      (select count(*) as "dislikesCount" from likes l where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id ) as dislikesCount ,
+      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userForLikes}  ),'None') as myStatus ) x2)as "extendedLikesInfo",
+      (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
+      from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
+      and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
+        from  posts p  join blogs b on p."blogId" = b.id order by ${orderBy} limit ${pqDto.pageSize} offset ${offset}`;
+
+    const posts = await this.dataSource.query(query);
+    const temp = posts.map((item) => {
+      const t = {
+        title: item.title,
+        content: item.content,
+        shortDescription: item.shortDescription,
+        createdAt: item.createdAt,
+        id: item.id,
+        blogId: item.blogId,
+        blogName: item.blogName,
+        extendedLikesInfo: {
+          ...item.extendedLikesInfo,
+          newestLikes: item.newestLikes,
+        },
+      };
+      return t;
+    });
+
+    const totalCount = await this.dataSource.query(
+      `select count(*) from posts p join blogs b on p."blogId" = b.id where b."isBanned" = false`,
+    );
+    console.log(totalCount);
+    return {
+      pagesCount: Math.ceil(+totalCount[0].count / pqDto.pageSize),
+      page: pqDto.pageNumber,
+      pageSize: pqDto.pageSize,
       totalCount: +totalCount[0].count,
       items: temp,
     };

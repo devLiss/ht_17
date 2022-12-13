@@ -27,15 +27,13 @@ import { LikeStatusDto } from '../../comments/dto/likeStatus.dto';
 import { Request } from 'express';
 import * as mongoose from 'mongoose';
 import { JwtService } from '../../sessions/application/jwt.service';
-import { UsersService } from '../../../super-admin/users/application/users.service';
-import { UserQueryRepository } from '../../../../entities/mongo/user/infrastructure/user-query.repository';
-import { CheckBanGuard } from '../../../../../common/guards/checkBan.guard';
-import { CheckBlogBanGuard } from '../../../../../common/guards/checkBlogBan.guard';
-import { BannedUsersQueryRepo } from '../../../../entities/mongo/blogs/infrastructure/bannedUsers.query-repo';
 import { PostSqlRepository } from '../../../../entities/postgres/postSql.repository';
 import { UserSqlRepository } from '../../../../entities/postgres/userSql.repository';
-import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 import { BlogsSqlRepository } from '../../../../entities/postgres/blogsSql.repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { MakeLikeCommand } from '../../comments/application/handlers/makeLike.handler';
+import { BlogBannedUsers } from '../../../../entities/mongo/blogs/entities/blogBannedUsers.schema';
+import { BlogBannedUsersSqlRepository } from '../../../../entities/postgres/blogBannedUsersSql.repository';
 
 @Controller('posts')
 export class PostsController {
@@ -45,9 +43,11 @@ export class PostsController {
     private userRepo: UserSqlRepository,
     private commentService: CommentsService,
     private blogRepo: BlogsSqlRepository,
+    private commandBus: CommandBus,
+    private blogBannedUsers: BlogBannedUsersSqlRepository,
   ) {}
 
-  /*@UseGuards(BearerAuthGuard)
+  @UseGuards(BearerAuthGuard)
   @Put(':postId/like-status')
   @HttpCode(204)
   async makeLike(
@@ -55,13 +55,15 @@ export class PostsController {
     @Body() lsDto: LikeStatusDto,
     @User() user,
   ) {
-    const post = await this.postQueryRepo.getPostById(id);
+    const post = await this.postRepo.getPostById(id);
     if (!post) throw new NotFoundException();
 
-    await this.postService.makeLike(id, user, lsDto.likeStatus);
+    await this.commandBus.execute(
+      new MakeLikeCommand(id, 'post', user.id, lsDto.likeStatus),
+    );
   }
 
-  @Get(':postId/comments')
+  /* @Get(':postId/comments')
   async getCommentByPostId(
     @Param('postId') postId: string,
     @Query() query: PostQueryDto,
@@ -108,7 +110,7 @@ export class PostsController {
 
     console.log(post.blogId);
     console.log(user.id);
-    /*const result = await this.bannedUserRepo.getByBlogIdAndUserId(
+    const result = await this.blogBannedUsers.getByBlogIdAndUserId(
       post.blogId.toString(),
       user.id,
     );
@@ -116,7 +118,7 @@ export class PostsController {
     console.log(result);
     if (result) {
       throw new ForbiddenException();
-    }*/
+    }
     const comment = await this.commentService.createComment(
       ucDto.content,
       postId,
@@ -127,7 +129,7 @@ export class PostsController {
 
     return comment;
   }
-  /*
+
   @Get()
   async getAllPosts(@Query() pqDto: PostQueryDto, @Req() req: Request) {
     let currentUserId = new mongoose.Types.ObjectId();
@@ -138,27 +140,21 @@ export class PostsController {
       console.log('UserId = ' + userId);
 
       if (userId) {
-        const user = await this.userQueryRepo.findById(userId.toString());
+        const user = await this.userRepo.getUserById(userId.toString());
         if (user) {
           currentUserId = user.id;
         }
       }
     }
 
-    const data = await this.postQueryRepo.findAllPosts(
-      currentUserId,
-      pqDto.pageNumber,
-      pqDto.pageSize,
-      pqDto.sortBy,
-      pqDto.sortDirection,
-    );
+    const data = await this.postRepo.getAllPosts('', pqDto);
     return data;
   }
-*/
+
   //@UseGuards(CheckBlogBanGuard)
   @Get(':id')
   async getPostById(@Param('id') id: string, @Req() req: Request) {
-    let currentUserId = new mongoose.Types.ObjectId();
+    let currentUserId = null;
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       console.log(token);
@@ -173,15 +169,9 @@ export class PostsController {
       }
     }
 
-    const post = await this.postRepo.getPostById(id);
+    const post = await this.postRepo.getPostByIdView(id, currentUserId);
 
     if (!post) throw new NotFoundException();
-    post['extendedLikesInfo'] = {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: 'None',
-      newestLikes: [],
-    };
     const blog = await this.blogRepo.getById(post.blogId);
     if (blog.isBanned) throw new NotFoundException();
     return post;

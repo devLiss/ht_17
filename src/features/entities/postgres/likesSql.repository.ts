@@ -9,7 +9,7 @@ export class LikesSqlRepository {
     likeableId: string,
     likeableType: string,
     userId: string,
-    like: { status: string; addedAt: Date },
+    like: { addedAt: string; status: string },
   ) {
     const query = `insert into likes ("likeableId","likeableType", "userId", "status", "createdAt") values ($1,$2,$3,$4,$5)`;
     const createdLike = await this.dataSource.query(query, [
@@ -26,7 +26,7 @@ export class LikesSqlRepository {
     likeableId: string,
     likeableType: string,
     userId: string,
-    like: { status: string; addedAt: Date },
+    like: { addedAt: string; status: string },
   ) {
     const query = `update likes set status = '${like.status}', "createdAt" = '${like.addedAt}' where "userId" = '${userId}' and "likeableId"='${likeableId}' and "likeableType" = '${likeableType}'`;
     console.log(query);
