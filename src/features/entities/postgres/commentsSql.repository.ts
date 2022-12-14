@@ -66,8 +66,14 @@ export class CommentsSqlRepository {
     if (userId) {
       subquery = `,coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
-    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
+    /*const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
     (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" 
+     ${subquery}
+    from "comments" c join users u on c."userId" = u.id where c.id  = '${id}'`;*/
+
+    /*   select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where status = 'Like' and ab."isBanned" isnull **/
+    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id and ab."isBanned" isnull ) as "likesCount" ,
+    (select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id and ab."isBanned" isnull  ) as "dislikesCount" 
      ${subquery}
     from "comments" c join users u on c."userId" = u.id where c.id  = '${id}'`;
 
@@ -106,8 +112,8 @@ export class CommentsSqlRepository {
     if (userId) {
       subquery = `,coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
-    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" ${subquery}
+    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id and ab."isBanned" isnull) as "likesCount" ,
+    (select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id and ab."isBanned" isnull   ) as "dislikesCount" ${subquery}
     from "comments" c join users u on c."userId" = u.id where c."postId" = '${postId}' order by ${orderBy} ${pagination.sortDirection} limit ${pagination.pageSize} offset ${offset}`;
 
     console.log(query);
