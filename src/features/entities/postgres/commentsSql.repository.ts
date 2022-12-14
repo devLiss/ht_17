@@ -32,8 +32,8 @@ export class CommentsSqlRepository {
         userLogin: item.userLogin,
         createdAt: item.createdAt,
         likesInfo: {
-          likesCount: +item.likesCount,
-          dislikesCount: +item.dislikesCount,
+          likesCount: item.likesCount ? +item.likesCount : 0,
+          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
           myStatus: item.myStatus,
         },
       };
@@ -91,8 +91,8 @@ export class CommentsSqlRepository {
         userLogin: item.userLogin,
         createdAt: item.createdAt,
         likesInfo: {
-          likesCount: +item.likesCount,
-          dislikesCount: +item.dislikesCount,
+          likesCount: item.likesCount ? +item.likesCount : 0,
+          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
           myStatus: item.myStatus,
         },
       };
