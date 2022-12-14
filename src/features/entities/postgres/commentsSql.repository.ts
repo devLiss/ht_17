@@ -71,11 +71,11 @@ export class CommentsSqlRepository {
      ${subquery}
     from "comments" c join users u on c."userId" = u.id where c.id  = '${id}'`;*/
 
-    /*   select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where status = 'Like' and ab."isBanned" isnull **/
+    /*   select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where status = 'Like' and ab."isBanned" isnull  */
     const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id and ab."isBanned" isnull ) as "likesCount" ,
     (select count(*) from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id and ab."isBanned" isnull  ) as "dislikesCount" 
      ${subquery}
-    from "comments" c join users u on c."userId" = u.id where c.id  = '${id}'`;
+    from "comments" c join users u on c."userId" = u.id left join "appBan" ab on c.userId = ab.userId where c.id  = '${id}' and ab.isBanned isnull`;
 
     const comments = await this.dataSource.query(query);
     const temp = comments.map((item) => {
