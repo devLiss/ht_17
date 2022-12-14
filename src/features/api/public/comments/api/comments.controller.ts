@@ -87,6 +87,7 @@ export class CommentsController {
       currentUserId,
     );
 
+    if (!comment) throw new NotFoundException();
     return comment;
     //.getCommentById(id);
     /*if (!comment) {
