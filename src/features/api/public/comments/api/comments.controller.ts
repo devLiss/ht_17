@@ -27,6 +27,7 @@ import { MakeLikeCommand } from '../application/handlers/makeLike.handler';
 import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 import { DeleteCommentCommand } from '../application/handlers/deleteComment.handler';
 import { UpdateCommentCommand } from '../application/handlers/updateComment.handler';
+import { UserSqlRepository } from '../../../../entities/postgres/userSql.repository';
 
 @Controller('comments')
 export class CommentsController {
@@ -34,7 +35,7 @@ export class CommentsController {
     protected commentsService: CommentsService,
     protected commentQueryRepo: CommentsQueryRepository,
     private jwtService: JwtService,
-    private userQueryRepo: UserQueryRepository,
+    private userQueryRepo: UserSqlRepository,
     private commentRepo: CommentsSqlRepository,
     private commandBus: CommandBus,
   ) {}
@@ -75,7 +76,7 @@ export class CommentsController {
       console.log('UserId = ' + userId);
 
       if (userId) {
-        const user = await this.userQueryRepo.findById(userId.toString());
+        const user = await this.userQueryRepo.getUserById(userId);
         if (user) {
           currentUserId = user.id;
         }
@@ -84,7 +85,10 @@ export class CommentsController {
     const comment = await this.commentRepo.getCommentByIdWithLikes(
       id,
       currentUserId,
-    ); //.getCommentById(id);
+    );
+
+    return comment;
+    //.getCommentById(id);
     /*if (!comment) {
       throw new NotFoundException();
     }
