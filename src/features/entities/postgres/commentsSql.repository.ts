@@ -106,7 +106,7 @@ export class CommentsSqlRepository {
     }
     const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
     (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ${subquery}
-    from "comments" c join users u on c."userId" = u.id where c."postId" = '${postId}' order by ${orderBy} limit ${pagination.pageSize} offset ${offset}`;
+    from "comments" c join users u on c."userId" = u.id where c."postId" = '${postId}' order by ${orderBy} ${pagination.sortDirection} limit ${pagination.pageSize} offset ${offset}`;
 
     console.log(query);
     const comments = await this.dataSource.query(query);
