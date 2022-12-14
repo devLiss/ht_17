@@ -17,7 +17,7 @@ export class MakeLikeHandler implements ICommandHandler<MakeLikeCommand> {
   async execute(command: MakeLikeCommand): Promise<any> {
     const existedLike = await this.likeRepo.getLikeByParentIdAndUserId(
       command.id,
-      'comment',
+      command.type,
       command.userId,
     );
 

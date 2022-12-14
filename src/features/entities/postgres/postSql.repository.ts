@@ -42,7 +42,7 @@ export class PostSqlRepository {
 
   async getPostByIdView(id: string, userId: string) {
     const userForLikes = userId ? `'${userId}'` : `b."ownerId"`;
-
+    console.log(userId);
     const query = `select 
       p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
       (select count(*) as "dislikesCount" from likes l where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id ) as dislikesCount ,
@@ -52,6 +52,7 @@ export class PostSqlRepository {
       and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
         from  posts p  join blogs b on p."blogId" = b.id where p.id = '${id}'`;
 
+    console.log(query);
     const posts = await this.dataSource.query(query);
     const temp = posts.map((item) => {
       const t = {
@@ -63,9 +64,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          likesCount: item.likesCount ? +item.likesCount : 0,
-          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
-          myStatus: item.myStatus ? item.myStatus : 'None',
+          likesCount: item.extendedLikesInfo.likesCount,
+          dislikesCount: item.extendedLikesInfo.dislikesCount,
+          myStatus: item.extendedLikesInfo.myStatus,
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
