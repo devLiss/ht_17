@@ -15,10 +15,12 @@ export class CommentsSqlRepository {
       comment.userId,
       comment.postId,
     ]);
+    //,
+    //
 
     const commentId = createdComment[0].id;
-    const q = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ,
+    const q = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c. id ) as "dislikesCount",
     coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${uuid()}'  ),'None') as "myStatus"
     from "comments" c join users u on c."userId" = u.id where c.id = '${commentId}'`;
     console.log(q);
@@ -32,8 +34,8 @@ export class CommentsSqlRepository {
         userLogin: item.userLogin,
         createdAt: item.createdAt,
         likesInfo: {
-          likesCount: item.likesCount ? +item.likesCount : 0,
-          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
+          likesCount: +item.likesCount,
+          dislikesCount: +item.dislikesCount,
           myStatus: item.myStatus,
         },
       };
@@ -64,8 +66,8 @@ export class CommentsSqlRepository {
     if (userId) {
       subquery = `,coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
-    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount 
+    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" 
      ${subquery}
     from "comments" c join users u on c."userId" = u.id where c.id  = '${id}'`;
 
@@ -78,8 +80,8 @@ export class CommentsSqlRepository {
         userLogin: item.userLogin,
         createdAt: item.createdAt,
         likesInfo: {
-          likesCount: item.likesCount ? +item.likesCount : 0,
-          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
+          likesCount: +item.likesCount,
+          dislikesCount: +item.dislikesCount,
           myStatus: item.myStatus ? item.myStatus : 'None',
         },
       };
@@ -104,8 +106,8 @@ export class CommentsSqlRepository {
     if (userId) {
       subquery = `,coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
-    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ${subquery}
+    const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as "likesCount" ,
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount" ${subquery}
     from "comments" c join users u on c."userId" = u.id where c."postId" = '${postId}' order by ${orderBy} ${pagination.sortDirection} limit ${pagination.pageSize} offset ${offset}`;
 
     console.log(query);
@@ -123,8 +125,8 @@ export class CommentsSqlRepository {
         userLogin: item.userLogin,
         createdAt: item.createdAt,
         likesInfo: {
-          likesCount: item.likesCount ? +item.likesCount : 0,
-          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
+          likesCount: +item.likesCount,
+          dislikesCount: +item.dislikesCount,
           myStatus: item.myStatus ? item.myStatus : 'None',
         },
       };
