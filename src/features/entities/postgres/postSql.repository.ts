@@ -64,7 +64,7 @@ export class PostSqlRepository {
         blogName: item.blogName,
         extendedLikesInfo: {
           ...item.extendedLikesInfo,
-          newestLikes: item.newestLikes,
+          newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
       return t;
@@ -110,7 +110,7 @@ export class PostSqlRepository {
         blogName: item.blogName,
         extendedLikesInfo: {
           ...item.extendedLikesInfo,
-          newestLikes: item.newestLikes,
+          newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
       return t;
@@ -154,7 +154,7 @@ export class PostSqlRepository {
         blogName: item.blogName,
         extendedLikesInfo: {
           ...item.extendedLikesInfo,
-          newestLikes: item.newestLikes,
+          newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
       return t;
