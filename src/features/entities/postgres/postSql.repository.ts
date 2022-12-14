@@ -102,7 +102,7 @@ export class PostSqlRepository {
         from  posts p  join blogs b on p."blogId" = b.id where p."blogId" = '${blogId}' order by ${orderBy} ${bqDto.sortDirection} limit ${bqDto.pageSize} offset ${offset}`;
 
     const posts = await this.dataSource.query(query);
-
+    console.log(query);
     const totalQuery = `select count(*) from posts p join blogs b on p."blogId" = b.id where p."blogId"='${blogId}'`;
     const totalCount = await this.dataSource.query(totalQuery);
 
