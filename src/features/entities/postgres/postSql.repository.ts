@@ -63,7 +63,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          ...item.extendedLikesInfo,
+          likesCount: item.likesCount,
+          dislikesCount: item.dislikesCount,
+          myStatus: item.myStatus,
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
@@ -111,7 +113,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          ...item.extendedLikesInfo,
+          likesCount: item.likesCount,
+          dislikesCount: item.dislikesCount,
+          myStatus: item.myStatus,
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
@@ -135,10 +139,15 @@ export class PostSqlRepository {
         : `p."${pqDto.sortBy}"`;
 
     const userForLikes = userId ? `'${userId}'` : `b."ownerId"`;
+
+    let subQuery = ``;
+    if (userId) {
+      subQuery = `,
+      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userId}  ),'None') as "myStatus"`;
+    }
     const query = `select 
       p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
-      (select count(*) as "dislikesCount" from likes l where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id ) as dislikesCount ,
-      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userForLikes}  ),'None') as "myStatus" ) x2)as "extendedLikesInfo",
+      (select count(*) as "dislikesCount" from likes l where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id ) as dislikesCount ${subQuery}) x2)as "extendedLikesInfo",
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
       from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
       and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
@@ -155,7 +164,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          ...item.extendedLikesInfo,
+          likesCount: item.likesCount,
+          dislikesCount: item.dislikesCount,
+          myStatus: item.myStatus,
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
