@@ -14,11 +14,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { PostsService } from '../application/posts.service';
 import { PostQueryDto } from '../dto/postQuery.dto';
-import { PostsQueryRepository } from '../../../../entities/mongo/post/infrastructure/posts-query.repository';
-import { CommentsQueryRepository } from '../../../../entities/mongo/comment/infrastucture/comments-query.repository';
-import { BlogQueryRepository } from '../../../../entities/mongo/blogs/infrastructure/blog-query.repository';
 import { BearerAuthGuard } from '../../../../../common/guards/bearerAuth.guard';
 import { CommentsService } from '../../comments/application/comments.service';
 import { User } from '../../../../../common/decorators/user.decorator';
@@ -32,7 +28,6 @@ import { UserSqlRepository } from '../../../../entities/postgres/userSql.reposit
 import { BlogsSqlRepository } from '../../../../entities/postgres/blogsSql.repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { MakeLikeCommand } from '../../comments/application/handlers/makeLike.handler';
-import { BlogBannedUsers } from '../../../../entities/mongo/blogs/entities/blogBannedUsers.schema';
 import { BlogBannedUsersSqlRepository } from '../../../../entities/postgres/blogBannedUsersSql.repository';
 import { CommentsSqlRepository } from '../../../../entities/postgres/commentsSql.repository';
 
@@ -89,8 +84,8 @@ export class PostsController {
       }
     }
     const comments = await this.commentRepo.getCommentByPostId(
-      currentUserId,
       postId,
+      currentUserId,
       query,
     );
     return comments;
