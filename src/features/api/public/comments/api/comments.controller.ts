@@ -89,11 +89,6 @@ export class CommentsController {
 
     if (!comment) throw new NotFoundException();
     return comment;
-    //.getCommentById(id);
-    /*if (!comment) {
-      throw new NotFoundException();
-    }
-    return comment;*/
   }
 
   @UseGuards(BearerAuthGuard)
