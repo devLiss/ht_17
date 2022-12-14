@@ -60,9 +60,13 @@ export class CommentsSqlRepository {
   }
 
   async getCommentByIdWithLikes(id: string, userId: string) {
+    let subquery = ``;
+    if (userId) {
+      subquery = `,coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
+    }
     const query = `select c.id, c."content" ,c."userId" , u.login as "userLogin", c."createdAt", (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" =c.id ) as likesCount ,
-    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ,
-    coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '${userId}'  ),'None') as "myStatus"
+    (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount 
+     ${subquery}
     from "comments" c join users u on c."userId" = u.id where c.id  = '${id}'`;
 
     const comments = await this.dataSource.query(query);
@@ -76,13 +80,13 @@ export class CommentsSqlRepository {
         likesInfo: {
           likesCount: item.likesCount ? +item.likesCount : 0,
           dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
-          myStatus: item.myStatus,
+          myStatus: item.myStatus ? item.myStatus : 'None',
         },
       };
       return t;
     });
 
-    return temp[0];
+    return temp.length ? temp[0] : null;
   }
 
   async getCommentByPostId(
