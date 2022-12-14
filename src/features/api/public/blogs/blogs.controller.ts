@@ -42,7 +42,7 @@ export class PublicBlogsController {
     @Query() bqDto: BlogQueryDto,
     @Req() req: Request,
   ) {
-    let currentUserId = new mongoose.Types.ObjectId();
+    let currentUserId = null;
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       console.log(token);
@@ -57,7 +57,7 @@ export class PublicBlogsController {
       }
     }
     console.log(bqDto);
-    return await this.postRepo.getPostsByBlogId(blogId, bqDto, '');
+    return await this.postRepo.getPostsByBlogId(blogId, bqDto, currentUserId);
   }
 
   @Get('/:id')
