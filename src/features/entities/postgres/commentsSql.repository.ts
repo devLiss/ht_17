@@ -108,6 +108,7 @@ export class CommentsSqlRepository {
     (select count(*) from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as dislikesCount ${subquery}
     from "comments" c join users u on c."userId" = u.id where c."postId" = '${postId}' order by ${orderBy} limit ${pagination.pageSize} offset ${offset}`;
 
+    console.log(query);
     const comments = await this.dataSource.query(query);
 
     const total = await this.dataSource.query(
