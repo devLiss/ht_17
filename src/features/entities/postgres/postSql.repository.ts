@@ -48,8 +48,8 @@ export class PostSqlRepository {
       (select count(*) as "dislikesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id and ab."isBanned" isnull ) as dislikesCount ,
       coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userForLikes}  ),'None') as "myStatus" ) x2)as "extendedLikesInfo",
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
-      from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
-      and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
+      from likes l2 left join users u on l2."userId" = u.id left join "appBan" ab on l2."userId" = ab."userId" where l2.status = 'Like' and l2."likeableType"  = 'post'
+      and l2."likeableId"  = p.id and ab."isBanned" isnull order by l2."createdAt" desc limit 3) t) as "newestLikes" 
         from  posts p  join blogs b on p."blogId" = b.id where p.id = '${id}'`;
 
     console.log(query);
@@ -98,8 +98,8 @@ export class PostSqlRepository {
       ) as likesCount,
       (select count(*) as "dislikesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id and ab."isBanned" isnull  ) as dislikesCount ${subQuery} ) x2)as "extendedLikesInfo",
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
-      from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
-      and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
+      from likes l2 left join users u on l2."userId" = u.id left join "appBan" ab on l2."userId" = ab."userId" where l2.status = 'Like' and l2."likeableType"  = 'post'
+      and l2."likeableId"  = p.id and ab."isBanned" isnull order by l2."createdAt" desc limit 3) t) as "newestLikes" 
         from  posts p  join blogs b on p."blogId" = b.id where p."blogId" = '${blogId}' order by ${orderBy} ${bqDto.sortDirection} limit ${bqDto.pageSize} offset ${offset}`;
 
     const posts = await this.dataSource.query(query);
@@ -154,8 +154,8 @@ export class PostSqlRepository {
       p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" =p.id and ab."isBanned" isnull ) as likesCount ,
       (select count(*) as "dislikesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'disLike' and l."likeableId" = p.id and ab."isBanned" isnull ) as dislikesCount ${subQuery}) x2)as "extendedLikesInfo",
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
-      from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
-      and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
+      from likes l2 left join users u on l2."userId" = u.id left join "appBan" ab on l2."userId" = ab."userId" where l2.status = 'Like' and l2."likeableType"  = 'post'
+      and l2."likeableId"  = p.id and ab."isBanned" isnull order by l2."createdAt" desc limit 3) t) as "newestLikes" 
         from  posts p  join blogs b on p."blogId" = b.id order by ${orderBy} ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
 
     console.log(query);
