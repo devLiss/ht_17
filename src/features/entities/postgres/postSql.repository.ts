@@ -91,7 +91,7 @@ export class PostSqlRepository {
     let subQuery = ``;
     if (currentId) {
       subQuery = `,
-      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${currentId}  ),'None') as "myStatus"`;
+      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = '${currentId}'  ),'None') as "myStatus"`;
     }
     const query = `select 
       p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
@@ -143,10 +143,11 @@ export class PostSqlRepository {
         ? `"${pqDto.sortBy}" COLLATE "C"`
         : `p."${pqDto.sortBy}"`;
 
+    console.log(userId);
     let subQuery = ``;
     if (userId) {
       subQuery = `,
-      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = ${userId}  ),'None') as "myStatus"`;
+      coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
     const query = `select 
       p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount"  from likes l where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id ) as likesCount ,
@@ -156,6 +157,7 @@ export class PostSqlRepository {
       and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
         from  posts p  join blogs b on p."blogId" = b.id order by ${orderBy} ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
 
+    console.log(query);
     const posts = await this.dataSource.query(query);
     const temp = posts.map((item) => {
       const t = {
@@ -169,9 +171,7 @@ export class PostSqlRepository {
         extendedLikesInfo: {
           likesCount: item.extendedLikesInfo.likesCount,
           dislikesCount: item.extendedLikesInfo.dislikesCount,
-          myStatus: item.extendedLikesInfo.myStatus
-            ? item.extendedLikesInfo.myStatus
-            : 'None',
+          myStatus: item.extendedLikesInfo.myStatus,
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
