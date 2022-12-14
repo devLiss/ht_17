@@ -129,7 +129,7 @@ export class PostsController {
 
   @Get()
   async getAllPosts(@Query() pqDto: PostQueryDto, @Req() req: Request) {
-    let currentUserId = new mongoose.Types.ObjectId();
+    let currentUserId = null;
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       console.log(token);
@@ -144,7 +144,7 @@ export class PostsController {
       }
     }
 
-    const data = await this.postRepo.getAllPosts('', pqDto);
+    const data = await this.postRepo.getAllPosts(currentUserId, pqDto);
     return data;
   }
 
