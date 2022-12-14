@@ -96,7 +96,7 @@ export class PostSqlRepository {
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
       from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
       and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
-        from  posts p  join blogs b on p."blogId" = b.id where p."blogId" = '${blogId}' order by ${orderBy} limit ${bqDto.pageSize} offset ${offset}`;
+        from  posts p  join blogs b on p."blogId" = b.id where p."blogId" = '${blogId}' order by ${orderBy} ${bqDto.sortDirection} limit ${bqDto.pageSize} offset ${offset}`;
 
     const posts = await this.dataSource.query(query);
 
@@ -138,8 +138,6 @@ export class PostSqlRepository {
         ? `"${pqDto.sortBy}" COLLATE "C"`
         : `p."${pqDto.sortBy}"`;
 
-    const userForLikes = userId ? `'${userId}'` : `b."ownerId"`;
-
     let subQuery = ``;
     if (userId) {
       subQuery = `,
@@ -151,7 +149,7 @@ export class PostSqlRepository {
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
       from likes l2 left join users u on l2."userId" = u.id where l2.status = 'Like' and l2."likeableType"  = 'post'
       and l2."likeableId"  = p.id order by l2."createdAt" desc limit 3) t) as "newestLikes" 
-        from  posts p  join blogs b on p."blogId" = b.id order by ${orderBy} limit ${pqDto.pageSize} offset ${offset}`;
+        from  posts p  join blogs b on p."blogId" = b.id order by ${orderBy} ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
 
     const posts = await this.dataSource.query(query);
     const temp = posts.map((item) => {
