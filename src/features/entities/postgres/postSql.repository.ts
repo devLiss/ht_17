@@ -66,7 +66,9 @@ export class PostSqlRepository {
         extendedLikesInfo: {
           likesCount: item.extendedLikesInfo.likesCount,
           dislikesCount: item.extendedLikesInfo.dislikesCount,
-          myStatus: item.extendedLikesInfo.myStatus,
+          myStatus: item.extendedLikesInfo.myStatus
+            ? item.extendedLikesInfo.myStatus
+            : 'None',
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
@@ -116,7 +118,9 @@ export class PostSqlRepository {
         extendedLikesInfo: {
           likesCount: item.extendedLikesInfo.likesCount,
           dislikesCount: item.extendedLikesInfo.dislikesCount,
-          myStatus: item.extendedLikesInfo.myStatus,
+          myStatus: item.extendedLikesInfo.myStatus
+            ? item.extendedLikesInfo.myStatus
+            : 'None',
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
@@ -165,7 +169,9 @@ export class PostSqlRepository {
         extendedLikesInfo: {
           likesCount: item.extendedLikesInfo.likesCount,
           dislikesCount: item.extendedLikesInfo.dislikesCount,
-          myStatus: item.extendedLikesInfo.myStatus,
+          myStatus: item.extendedLikesInfo.myStatus
+            ? item.extendedLikesInfo.myStatus
+            : 'None',
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
