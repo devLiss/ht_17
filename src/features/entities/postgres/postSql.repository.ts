@@ -63,9 +63,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          likesCount: item.likesCount,
-          dislikesCount: item.dislikesCount,
-          myStatus: item.myStatus,
+          likesCount: item.likesCount ? +item.likesCount : 0,
+          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
+          myStatus: item.myStatus ? item.myStatus : 'None',
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
@@ -113,9 +113,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          likesCount: item.likesCount,
-          dislikesCount: item.dislikesCount,
-          myStatus: item.myStatus,
+          likesCount: item.likesCount ? +item.likesCount : 0,
+          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
+          myStatus: item.myStatus ? item.myStatus : 'None',
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
@@ -164,9 +164,9 @@ export class PostSqlRepository {
         blogId: item.blogId,
         blogName: item.blogName,
         extendedLikesInfo: {
-          likesCount: item.likesCount,
-          dislikesCount: item.dislikesCount,
-          myStatus: item.myStatus,
+          likesCount: item.likesCount ? +item.likesCount : 0,
+          dislikesCount: item.dislikesCount ? +item.dislikesCount : 0,
+          myStatus: item.myStatus ? item.myStatus : 'None',
           newestLikes: item.newestLikes ? item.newestLikes : [],
         },
       };
