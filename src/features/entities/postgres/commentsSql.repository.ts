@@ -48,7 +48,7 @@ export class CommentsSqlRepository {
   }
 
   async update(id: string, content: string) {
-    const query = `update comments set content = '${content} where id = '${id}'`;
+    const query = `update comments set content = '${content}' where id = '${id}'`;
     return this.dataSource.query(query);
   }
 
