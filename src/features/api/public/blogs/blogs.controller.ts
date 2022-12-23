@@ -56,6 +56,9 @@ export class PublicBlogsController {
         }
       }
     }
+
+    const blog = await this.blogRepo.getById(blogId);
+    if (!blog) throw new NotFoundException();
     console.log(bqDto);
     return await this.postRepo.getPostsByBlogId(blogId, bqDto, currentUserId);
   }
