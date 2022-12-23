@@ -18,7 +18,7 @@ export class PostSqlRepository {
       post.blogId,
     ]);
 
-    const getQuery = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${createdPost[0].id}'`;
+    const getQuery = `select p.*, b."blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${createdPost[0].id}'`;
     const returnedPost = await this.dataSource.query(getQuery);
 
     return returnedPost.length ? returnedPost[0] : null;
@@ -35,7 +35,7 @@ export class PostSqlRepository {
   }
 
   async getPostById(id: string) {
-    const query = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${id}'`;
+    const query = `select p.*, b."blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${id}'`;
     const post = await this.dataSource.query(query);
     return post.length ? post[0] : null;
   }
@@ -49,7 +49,7 @@ export class PostSqlRepository {
       coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
     console.log(userId);
-    const query = `select  p.*, b.name as "blogName", (select row_to_json(x2) from (
+    const query = `select  p.*, b."blogName", (select row_to_json(x2) from (
       select * from (
       select count(*) as "likesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" =p.id and ab."isBanned" isnull ) as likesCount ,
       (select count(*) as "dislikesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id and ab."isBanned" isnull ) as dislikesCount ${subQuery} ) x2)as "extendedLikesInfo",
@@ -101,7 +101,7 @@ export class PostSqlRepository {
       coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = '${currentId}'  ),'None') as "myStatus"`;
     }
     const query = `select 
-      p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id and ab."isBanned" isnull 
+      p.*, b."blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" = p.id and ab."isBanned" isnull 
       ) as likesCount,
       (select count(*) as "dislikesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" =p.id and ab."isBanned" isnull  ) as dislikesCount ${subQuery} ) x2)as "extendedLikesInfo",
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
@@ -149,7 +149,7 @@ export class PostSqlRepository {
     const orderBy =
       pqDto.sortBy != 'createdAt'
         ? `"${pqDto.sortBy}" COLLATE "C"`
-        : `p."${pqDto.sortBy}"`;
+        : `b."${pqDto.sortBy}"`;
 
     console.log(userId);
     let subQuery = ``;
@@ -158,7 +158,7 @@ export class PostSqlRepository {
       coalesce((select  l.status as "myStatus" from likes l where l."likeableType" ='post' and l."likeableId" = p.id and l."userId" = '${userId}'  ),'None') as "myStatus"`;
     }
     const query = `select 
-      p.*, b.name as "blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" =p.id and ab."isBanned" isnull ) as likesCount ,
+      p.*, b."blogName", (select row_to_json(x2) from (select * from (select count(*) as "likesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Like' and l."likeableId" =p.id and ab."isBanned" isnull ) as likesCount ,
       (select count(*) as "dislikesCount" from likes l left join "appBan" ab on l."userId" = ab."userId" where l."likeableType" ='post' and l.status = 'Dislike' and l."likeableId" = p.id and ab."isBanned" isnull ) as dislikesCount ${subQuery}) x2)as "extendedLikesInfo",
       (select array_to_json(array_agg( row_to_json(t))) from (select l2."createdAt" as "addedAt" , l2."userId" as "userId" ,u.login as login
       from likes l2 left join users u on l2."userId" = u.id left join "appBan" ab on l2."userId" = ab."userId" where l2.status = 'Like' and l2."likeableType"  = 'post'
@@ -166,7 +166,9 @@ export class PostSqlRepository {
         from  posts p  join blogs b on p."blogId" = b.id order by ${orderBy} ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
 
     console.log(query);
+
     const posts = await this.dataSource.query(query);
+    console.log(posts);
     const temp = posts.map((item) => {
       const t = {
         title: item.title,
