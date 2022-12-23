@@ -195,7 +195,6 @@ export class UserSqlRepository {
       userQuery.pageSize,
       offset,
     ]);
-    //console.log(query);
 
     const totalQuery = `select count(*) from users u left join "appBan" ab on u.id = ab."userId" where u.login ilike '%${userQuery.searchLoginTerm}%' or  u.email ilike '%${userQuery.searchEmailTerm}%' ${subquery}`;
     const totalCount = await this.dataSource.query(totalQuery);
