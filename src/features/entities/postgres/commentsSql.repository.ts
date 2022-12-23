@@ -162,7 +162,7 @@ export class CommentsSqlRepository {
     coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '7298a66e-43dc-465e-9a09-ed8538712c49'  ),'None') as MyStatus
     from "comments" c left join posts p on c."postId" = p.id 
     left join blogs b on p."blogId" = b.id
-    left join users u on c."userId" = u.id order by ${orderBy}  ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
+    left join users u on c."userId" = u.id where b."ownerId" = '${id}' order by ${orderBy}  ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
 
     const comments = await this.dataSource.query(query);
 
