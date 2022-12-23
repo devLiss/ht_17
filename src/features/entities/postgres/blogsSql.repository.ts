@@ -27,7 +27,7 @@ export class BlogsSqlRepository {
     description: string,
     websiteUrl: string,
   ) {
-    const query = `update blogs set blogName = $1, description = $2, "websiteUrl" = $3 where id = '${id}'`;
+    const query = `update blogs set name = $1, description = $2, "websiteUrl" = $3 where id = '${id}'`;
     await this.dataSource.query(query, [name, description, websiteUrl]);
     return true;
   }
@@ -48,7 +48,7 @@ export class BlogsSqlRepository {
         ? `"${bqDto.sortBy}" COLLATE "C"`
         : `b."${bqDto.sortBy}"`;
     //select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id
-    const query = `select b.id,b."blogName" as name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id where name ilike '%${bqDto.searchNameTerm}%' order by ${orderBy} ${bqDto.sortDirection} limit $1 offset $2`;
+    const query = `select b.id,b.name, b.description , b."websiteUrl" , b."createdAt", b."isBanned", b."banDate" , b."ownerId" as "userId", u.login as "userLogin" from blogs b left join users u on b."ownerId" = u.id where name ilike '%${bqDto.searchNameTerm}%' order by ${orderBy} ${bqDto.sortDirection} limit $1 offset $2`;
 
     console.log(query);
     const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
@@ -90,7 +90,7 @@ export class BlogsSqlRepository {
       queryDto.sortBy != 'createdAt'
         ? `"${queryDto.sortBy}" COLLATE "C"`
         : `"${queryDto.sortBy}"`;
-    const query = `select id, "blogName" as name, description, "websiteUrl", "createdAt" from blogs where "isBanned" = false and name ilike '%${queryDto.searchNameTerm}%' order by ${orderBy} ${queryDto.sortDirection} limit $1 offset $2`;
+    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where "isBanned" = false and name ilike '%${queryDto.searchNameTerm}%' order by ${orderBy} ${queryDto.sortDirection} limit $1 offset $2`;
     console.log(query);
     const blogs = await this.dataSource.query(query, [
       queryDto.pageSize,
@@ -114,7 +114,7 @@ export class BlogsSqlRepository {
       bqDto.sortBy != 'createdAt'
         ? `"${bqDto.sortBy}" COLLATE "C"`
         : `"${bqDto.sortBy}"`;
-    const query = `select id, "blogName" as name, description, "websiteUrl", "createdAt" from blogs where name ilike '%${bqDto.searchNameTerm}%' and "ownerId" = '${userId}'  order by ${orderBy} ${bqDto.sortDirection} limit $1 offset $2`;
+    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where name ilike '%${bqDto.searchNameTerm}%' and "ownerId" = '${userId}'  order by ${orderBy} ${bqDto.sortDirection} limit $1 offset $2`;
     const blogs = await this.dataSource.query(query, [bqDto.pageSize, offset]);
 
     const totalQuery = `select count(*) from blogs where name ilike '%${bqDto.searchNameTerm}%' and "ownerId" = '${userId}'`;
