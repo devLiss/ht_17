@@ -18,7 +18,7 @@ export class PostSqlRepository {
       post.blogId,
     ]);
 
-    const getQuery = `select p.*, b."blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${createdPost[0].id}'`;
+    const getQuery = `select p.*, b.name as "blogName" from posts p left join blogs b on p."blogId" = b.id where p.id = '${createdPost[0].id}'`;
     const returnedPost = await this.dataSource.query(getQuery);
 
     return returnedPost.length ? returnedPost[0] : null;
