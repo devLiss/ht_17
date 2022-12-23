@@ -146,6 +146,9 @@ export class PostSqlRepository {
   async getAllPosts(userId: string, pqDto: PostQueryDto) {
     const offset = (pqDto.pageNumber - 1) * pqDto.pageSize;
 
+    if (pqDto.sortBy == 'blogName') {
+      pqDto.sortBy = 'name';
+    }
     const orderBy =
       pqDto.sortBy != 'createdAt'
         ? `"${pqDto.sortBy}" COLLATE "C"`
