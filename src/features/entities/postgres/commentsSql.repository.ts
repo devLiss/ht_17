@@ -148,5 +148,59 @@ export class CommentsSqlRepository {
     };
   }
 
-  async getCommentsForBlogger(id: string, query: PaginatingQueryDto) {}
+  async getCommentsForBlogger(id: string, pqDto: PaginatingQueryDto) {
+    const offset = (pqDto.pageNumber - 1) * pqDto.pageSize;
+    const orderBy =
+      pqDto.sortBy != 'createdAt'
+        ? `"${pqDto.sortBy}" COLLATE "C"`
+        : `c."${pqDto.sortBy}"`;
+
+    const query = `select c."content" , c."createdAt", c.id , c."userId" as "userId", u.login as "userLogin", b.name as "blogName" , b.id as "blogId",
+    p.id as "postId", p.title,
+    (select count(*) as "likesCount"  from likes l where l."likeableType" ='comment' and l.status = 'Like' and l."likeableId" = c.id ) as "likesCount" ,
+    (select count(*) as "dislikesCount" from likes l where l."likeableType" ='comment' and l.status = 'Dislike' and l."likeableId" =c.id ) as "dislikesCount",
+    coalesce((select  l.status from likes l where l."likeableType" ='comment' and l."likeableId" = c.id and l."userId" = '7298a66e-43dc-465e-9a09-ed8538712c49'  ),'None') as MyStatus
+    from "comments" c left join posts p on c."postId" = p.id 
+    left join blogs b on p."blogId" = b.id
+    left join users u on c."userId" = u.id order by ${orderBy}  ${pqDto.sortDirection} limit ${pqDto.pageSize} offset ${offset}`;
+
+    const comments = await this.dataSource.query(query);
+
+    const totalQuery = `select count(*) from comments c left join posts p on c."postId" = p.id left join blogs b on p."blogId" = b.id where b."ownerId" = '${id}' `;
+    const total = await this.dataSource.query(totalQuery);
+
+    console.log(comments);
+    console.log(total);
+    const temp = comments.map((item) => {
+      const t = {
+        id: item.id,
+        content: item.content,
+        createdAt: item.createdAt,
+        likesInfo: {
+          likesCount: +item.likesCount,
+          dislikesCount: +item.dislikesCount,
+          myStatus: item.myStatus ? item.myStatus : 'None',
+        },
+        commentatorInfo: {
+          userId: item.userId,
+          userLogin: item.userLogin,
+        },
+        postInfo: {
+          id: item.postId,
+          title: item.title,
+          blogId: item.blogId,
+          blogName: item.blogName,
+        },
+      };
+      return t;
+    });
+
+    return {
+      pagesCount: Math.ceil(+total[0].count / pqDto.pageSize),
+      page: pqDto.pageNumber,
+      pageSize: pqDto.pageSize,
+      totalCount: +total[0].count,
+      items: temp,
+    };
+  }
 }

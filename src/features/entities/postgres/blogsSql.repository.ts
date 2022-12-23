@@ -1,7 +1,6 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { BlogQueryDto } from '../../api/public/blogs/dto/blogQuery.dto';
-import { treeKillSync } from '@nestjs/cli/lib/utils/tree-kill';
 
 export class BlogsSqlRepository {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
