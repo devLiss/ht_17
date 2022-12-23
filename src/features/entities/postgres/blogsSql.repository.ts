@@ -86,7 +86,11 @@ export class BlogsSqlRepository {
   async getAllPublic(queryDto: BlogQueryDto) {
     const offset = (queryDto.pageNumber - 1) * queryDto.pageSize;
 
-    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where "isBanned" = false and name ilike '%${queryDto.searchNameTerm}%' order by "${queryDto.sortBy}" ${queryDto.sortDirection} limit $1 offset $2`;
+    const orderBy =
+      queryDto.sortBy != 'createdAt'
+        ? `"${queryDto.sortBy}" COLLATE "C"`
+        : `"${queryDto.sortBy}"`;
+    const query = `select id, name, description, "websiteUrl", "createdAt" from blogs where "isBanned" = false and name ilike '%${queryDto.searchNameTerm}%' order by ${orderBy} ${queryDto.sortDirection} limit $1 offset $2`;
     console.log(query);
     const blogs = await this.dataSource.query(query, [
       queryDto.pageSize,
