@@ -40,7 +40,6 @@ export class UsersController {
   async getAllUsers(@Query() uqDto: UserQueryDto) {
     //const users = await this.userQueryRepo.getUsers(uqDto);
     const users = await this.userSqlRepo.getAllUsers(uqDto);
-    console.log(users);
     return users;
   }
 

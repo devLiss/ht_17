@@ -169,6 +169,8 @@ export class UserSqlRepository {
 
   async getAllUsers(userQuery: UserQueryDto) {
     let subquery = ``;
+    console.log('GET ALL USERS');
+    console.log(userQuery.banStatus);
     switch (userQuery.banStatus) {
       case 'banned':
         subquery = 'and ab."isBanned"';
@@ -178,7 +180,6 @@ export class UserSqlRepository {
         break;
     }
 
-    console.log(userQuery);
     const offset = (userQuery.pageNumber - 1) * userQuery.pageSize;
 
     const orderBy =
@@ -187,9 +188,8 @@ export class UserSqlRepository {
         : `u."${userQuery.sortBy}"`;
     const query = `select u.id, u.login, u.email, u."createdAt", ab."isBanned" , ab."banDate" , ab."banReason"  
     from users u left join "appBan" ab on u.id = ab."userId" 
-    where u.login ilike '%${userQuery.searchLoginTerm}%' or  u.email ilike '%${userQuery.searchEmailTerm}%' ${subquery} 
+    where (u.login ilike '%${userQuery.searchLoginTerm}%' or  u.email ilike '%${userQuery.searchEmailTerm}%') ${subquery} 
     order by  ${orderBy} ${userQuery.sortDirection} limit $1 offset $2 `;
-
     console.log(query);
     const users = await this.dataSource.query(query, [
       userQuery.pageSize,
