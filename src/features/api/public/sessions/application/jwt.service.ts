@@ -18,13 +18,13 @@ export class JwtService {
       { userId: userId },
       process.env.JWT_SECRET /*this.secret*/,
       {
-        expiresIn: '10s',
+        expiresIn: '10m',
       },
     );
     const refreshToken = jwt.sign(
       { deviceId: deviceId, userId: userId },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '20s' },
+      { expiresIn: '20m' },
     );
 
     return {
